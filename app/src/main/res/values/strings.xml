@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Lego Sorter App</string>
+    <string name="start_button">Start</string>
+    <string name="preview_fragment_info">You should see camera preview here</string>
+</resources>
