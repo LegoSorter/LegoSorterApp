@@ -16,11 +16,18 @@ class OnPremiseLegoBrickDetector : LegoBrickDetector {
     @SuppressLint("UnsafeExperimentalUsageError")
     override fun detectBricks(image: ImageProxy): Task<List<LegoBrickDetector.DetectedLegoBrick>> {
         val inputImage = InputImage.fromMediaImage(image.image!!, image.imageInfo.rotationDegrees)
+        val processing = detector.process(inputImage)
+        processing.addOnCompleteListener { image.close() }
 
-        return detector.process(inputImage).continueWith { result ->
+        return processing.continueWith { result ->
             result.result!!.map {
-                val first = it.labels.first()
-                val label = LegoBrickDetector.Label(first.confidence, first.text, first.index)
+                var label: LegoBrickDetector.Label? = null
+
+                if (it.labels.isNotEmpty()) {
+                    val first = it.labels.first()
+                    label = LegoBrickDetector.Label(first.confidence, first.text, first.index)
+                }
+
                 LegoBrickDetector.DetectedLegoBrick(it.boundingBox, label)
             }
         }

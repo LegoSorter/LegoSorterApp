@@ -8,14 +8,11 @@ interface LegoBrickDetector {
 
     fun detectBricks(image: ImageProxy): Task<List<DetectedLegoBrick>>
 
-    class DetectedLegoBrick(
-        boundingBox: Rect,
-        label: Label
-    ) {}
+    class DetectedLegoBrick(val boundingBox: Rect, val label: Label?) {
 
-    class Label(
-        confidence: Float,
-        text: String,
-        index: Int
-    ) {}
+    }
+
+    class Label(val confidence: Float, val text: String, val index: Int) {
+
+    }
 }

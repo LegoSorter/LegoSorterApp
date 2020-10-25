@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageAnalysis.STRATEGY_BLOCK_PRODUCER
 import androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -39,27 +40,20 @@ class PreviewFragment : Fragment() {
 
             val analysisUseCase = ImageAnalysis.Builder()
                 .setTargetResolution(FULL_HD_SIZE)
-                .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
+//                .setBackpressureStrategy(STRATEGY_BLOCK_PRODUCER)
                 .build()
                 .also {
                     it.setAnalyzer(
                         ContextCompat.getMainExecutor(this.requireContext()),
-                        ImageAnalyzer()
+                        ImageAnalyzer(binding.graphicOverlay)
                     )
                 }
 
-            val preview = Preview.Builder()
-                .build()
-                .also {
-                    it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
-                }
+            val preview = Preview.Builder().build()
 
-            try {
-                cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(this, cameraSelector, preview, analysisUseCase)
-            } catch (exc: Exception) {
-                Log.e("PreviewFragment", "Use case binding failed", exc)
-            }
+            cameraProvider.unbindAll()
+            cameraProvider.bindToLifecycle(this, cameraSelector, analysisUseCase, preview)
+            preview.setSurfaceProvider(binding.viewFinder.surfaceProvider)
 
         }, ContextCompat.getMainExecutor(this.requireContext()))
     }

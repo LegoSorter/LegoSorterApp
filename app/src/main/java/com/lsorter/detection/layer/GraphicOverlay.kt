@@ -172,7 +172,7 @@ class GraphicOverlay(context: Context?, attrs: AttributeSet?) : View(context, at
     }
 
     init {
-        addOnLayoutChangeListener { view: View?, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int ->
+        addOnLayoutChangeListener { _: View?, _: Int, _: Int, _: Int, _: Int, _: Int, _: Int, _: Int, _: Int ->
             needUpdateTransformation = true
         }
     }
