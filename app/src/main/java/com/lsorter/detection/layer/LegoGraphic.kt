@@ -26,13 +26,10 @@ class LegoGraphic constructor(
 
         getBoundaries().let { rect ->
             canvas.drawRect(rect, boxPaint)
+
             legoBrick.label?.let {
                 canvas.drawText(
-                    String.format(
-                        LABEL_FORMAT,
-                        it.text,
-                        it.confidence * 100
-                    ),
+                    "%s - %.2f%%".format(it.text, it.confidence * 100),
                     rect.left,
                     rect.top - lineHeight,
                     textPaint
@@ -53,6 +50,5 @@ class LegoGraphic constructor(
     companion object {
         private const val TEXT_SIZE = 54.0f
         private const val STROKE_WIDTH = 4.0f
-        private const val LABEL_FORMAT = "%s - %.2f%%"
     }
 }
