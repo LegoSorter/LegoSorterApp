@@ -35,7 +35,7 @@ class OnPremiseLegoBrickDetector : LegoBrickDetector {
 
     private fun getObjectDetectorOptions(): ObjectDetectorOptions {
         return ObjectDetectorOptions.Builder()
-            .setDetectorMode(ObjectDetectorOptions.STREAM_MODE)
+            .setDetectorMode(ObjectDetectorOptions.SINGLE_IMAGE_MODE)
             .enableClassification()
             .enableMultipleObjects()
             .build()

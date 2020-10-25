@@ -40,8 +40,8 @@ class ImageAnalyzer(private val graphicOverlay: GraphicOverlay) : ImageAnalysis.
         graphicOverlay.postInvalidate()
     }
 
-    private fun onFailure(it: Exception) {
-        Log.e(ImageAnalyzer::class.java.name, "Exception during detecting bricks", it)
-        throw RuntimeException(it)
+    private fun onFailure(e: Exception) {
+        Log.e(ImageAnalyzer::class.java.name, "Exception during detecting bricks", e)
+        throw RuntimeException(e)
     }
 }
