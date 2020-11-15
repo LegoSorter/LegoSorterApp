@@ -39,8 +39,7 @@ class PreviewFragment : Fragment() {
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
             val analysisUseCase = ImageAnalysis.Builder()
-                .setTargetResolution(FULL_HD_SIZE)
-//                .setBackpressureStrategy(STRATEGY_BLOCK_PRODUCER)
+                .setTargetResolution(QUAD_HD_SIZE)
                 .build()
                 .also {
                     it.setAnalyzer(
@@ -59,6 +58,6 @@ class PreviewFragment : Fragment() {
     }
 
     companion object {
-        val FULL_HD_SIZE = Size(1920, 1080)
+        val QUAD_HD_SIZE = Size(2560, 1440)
     }
 }
