@@ -1,4 +1,4 @@
-package com.lsorter
+package com.lsorter.view
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

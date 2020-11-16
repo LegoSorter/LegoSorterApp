@@ -9,7 +9,7 @@ class LegoBrickDetectorsFactory {
          */
         private fun detectLocally(): Boolean {
             // TODO: Read from user preferences
-            return false
+            return true
         }
 
         fun getLegoBrickDetector(): LegoBrickDetector {

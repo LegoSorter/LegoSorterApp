@@ -20,6 +20,14 @@ class ImageAnalyzer(private val graphicOverlay: GraphicOverlay) : ImageAnalysis.
     private val detector: LegoBrickDetector = LegoBrickDetectorsFactory.getLegoBrickDetector()
 
     private var initialized: Boolean = false
+    private var isShutdown: Boolean = false
+    private val lock = Any()
+
+    fun shutdown() {
+        synchronized(lock) {
+            isShutdown = true
+        }
+    }
 
     override fun analyze(image: ImageProxy) {
         if (!initialized) {
@@ -37,13 +45,17 @@ class ImageAnalyzer(private val graphicOverlay: GraphicOverlay) : ImageAnalysis.
     }
 
     private fun drawDetectedBricks(bricks: List<LegoBrickDetector.DetectedLegoBrick>) {
-        graphicOverlay.clear()
+        synchronized(lock) {
+            if (isShutdown) return
 
-        for (brick in bricks) {
-            graphicOverlay.add(LegoGraphic(graphicOverlay, brick))
+            graphicOverlay.clear()
+
+            for (brick in bricks) {
+                graphicOverlay.add(LegoGraphic(graphicOverlay, brick))
+            }
+
+            graphicOverlay.postInvalidate()
         }
-
-        graphicOverlay.postInvalidate()
     }
 
     private fun onFailure(e: Exception) {
