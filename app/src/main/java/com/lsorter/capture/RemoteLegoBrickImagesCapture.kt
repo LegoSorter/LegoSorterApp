@@ -44,6 +44,7 @@ class RemoteLegoBrickImagesCapture() : LegoBrickDatasetCapture {
             val canProcessNext = AtomicBoolean(true)
             while (true) {
                 if (canProcessNext.get()) {
+                    canProcessNext.set(false)
                     imageCapture.takePicture(cameraExecutor,
                         object : ImageCapture.OnImageCapturedCallback() {
                             override fun onCaptureSuccess(image: ImageProxy) {
@@ -52,7 +53,6 @@ class RemoteLegoBrickImagesCapture() : LegoBrickDatasetCapture {
                                 canProcessNext.set(true)
                             }
                         })
-                    canProcessNext.set(false)
                 }
 
                 delay(frequencyMs.toLong())
