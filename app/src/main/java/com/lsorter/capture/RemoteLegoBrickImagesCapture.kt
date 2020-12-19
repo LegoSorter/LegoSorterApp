@@ -49,10 +49,10 @@ class RemoteLegoBrickImagesCapture() : LegoBrickDatasetCapture {
                             override fun onCaptureSuccess(image: ImageProxy) {
                                 sendLegoImageWithLabel(image, "lego")
                                 image.close()
-                                canProcessNext.set(false)
+                                canProcessNext.set(true)
                             }
                         })
-                    canProcessNext.set(true)
+                    canProcessNext.set(false)
                 }
 
                 delay(frequencyMs.toLong())
