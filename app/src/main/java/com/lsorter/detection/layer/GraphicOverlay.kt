@@ -97,7 +97,9 @@ class GraphicOverlay(context: Context?, attrs: AttributeSet?) : View(context, at
      * Removes all graphics from the overlay.
      */
     fun clear() {
-        synchronized(lock) { graphics.clear() }
+        synchronized(lock) {
+            graphics.clear()
+        }
         postInvalidate()
     }
 

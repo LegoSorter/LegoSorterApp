@@ -12,45 +12,47 @@ import kotlinx.coroutines.*
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicBoolean
 
-class RemoteLegoBrickImagesCapture(val connectionManager: ConnectionManager) : LegoBrickDatasetCapture {
+class RemoteLegoBrickImagesCapture() : LegoBrickDatasetCapture {
 
+    private val connectionManager = ConnectionManager()
+    private val connectionChannel = connectionManager.getConnectionChannel()
     private val cameraExecutor: Executor = Executors.newSingleThreadExecutor()
     private var scope = MainScope()
 
     private val legoBrickService: LegoBrickGrpc.LegoBrickBlockingStub =
-            LegoBrickGrpc.newBlockingStub(connectionManager.getConnectionChannel())
+        LegoBrickGrpc.newBlockingStub(connectionChannel)
 
     @SuppressLint("RestrictedApi", "CheckResult")
     fun sendLegoImageWithLabel(image: ImageProxy, label: String) {
         val request = LegoBrickProto.ImageStore.newBuilder()
-                .setImage(
-                        ByteString.copyFrom(
-                                ImageUtil.imageToJpegByteArray(image)
-                        )
+            .setImage(
+                ByteString.copyFrom(
+                    ImageUtil.imageToJpegByteArray(image)
                 )
-                .setRotation(image.imageInfo.rotationDegrees)
-                .setLabel(label)
-                .build()
+            )
+            .setRotation(image.imageInfo.rotationDegrees)
+            .setLabel(label)
+            .build()
 
         legoBrickService.collectCroppedImages(request)
     }
 
     override fun captureImages(imageCapture: ImageCapture, frequencyMs: Int) {
         scope.launch {
-            val counter = AtomicInteger(0)
+            val canProcessNext = AtomicBoolean(true)
             while (true) {
-                if (counter.get() == 0) {
+                if (canProcessNext.get()) {
                     imageCapture.takePicture(cameraExecutor,
-                            object : ImageCapture.OnImageCapturedCallback() {
-                                override fun onCaptureSuccess(image: ImageProxy) {
-                                    sendLegoImageWithLabel(image, "lego")
-                                    image.close()
-                                    counter.decrementAndGet()
-                                }
-                            })
-                    counter.incrementAndGet()
+                        object : ImageCapture.OnImageCapturedCallback() {
+                            override fun onCaptureSuccess(image: ImageProxy) {
+                                sendLegoImageWithLabel(image, "lego")
+                                image.close()
+                                canProcessNext.set(false)
+                            }
+                        })
+                    canProcessNext.set(true)
                 }
 
                 delay(frequencyMs.toLong())
@@ -59,8 +61,8 @@ class RemoteLegoBrickImagesCapture(val connectionManager: ConnectionManager) : L
     }
 
     override fun stop() {
-        connectionManager.getConnectionChannel().shutdown()
-        connectionManager.getConnectionChannel().awaitTermination(1000, TimeUnit.MILLISECONDS)
+        connectionChannel.shutdown()
+        connectionChannel.awaitTermination(1000, TimeUnit.MILLISECONDS)
         scope.cancel()
         scope = MainScope()
     }

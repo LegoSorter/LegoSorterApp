@@ -17,7 +17,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.lsorter.capture.LegoBrickDatasetCapture
 import com.lsorter.capture.RemoteLegoBrickImagesCapture
-import com.lsorter.connection.ConnectionManager
 import com.lsorter.databinding.FragmentPreviewBinding
 import com.lsorter.detection.analysis.LegoImageAnalyzer
 
@@ -123,7 +122,7 @@ class PreviewFragment : Fragment() {
         val cameraProvider = cameraProvider!!
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
-        this.legoBrickImagesCapture = RemoteLegoBrickImagesCapture(ConnectionManager())
+        this.legoBrickImagesCapture = RemoteLegoBrickImagesCapture()
 
         val imageCapture = ImageCapture.Builder()
                 .setTargetResolution(QUAD_HD_SIZE)
