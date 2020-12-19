@@ -1,5 +1,6 @@
 package com.lsorter.detection.detectors
 
+import com.lsorter.connection.ConnectionManager
 import com.lsorter.detection.detectors.remote.RemoteLegoBrickDetector
 
 class LegoBrickDetectorsFactory {
@@ -9,14 +10,14 @@ class LegoBrickDetectorsFactory {
          */
         private fun detectLocally(): Boolean {
             // TODO: Read from user preferences
-            return true
+            return false
         }
 
         fun getLegoBrickDetector(): LegoBrickDetector {
             return if (detectLocally()) {
                 OnPremiseLegoBrickDetector()
             } else {
-                RemoteLegoBrickDetector()
+                RemoteLegoBrickDetector(ConnectionManager())
             }
         }
     }

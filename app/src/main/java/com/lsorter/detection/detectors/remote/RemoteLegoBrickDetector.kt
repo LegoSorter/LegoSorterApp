@@ -6,21 +6,15 @@ import androidx.camera.core.internal.utils.ImageUtil
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.protobuf.ByteString
+import com.lsorter.connection.ConnectionManager
 import com.lsorter.detection.detectors.LegoBrickDetector
 import com.lsorter.detection.detectors.LegoBrickGrpc
 import com.lsorter.detection.detectors.LegoBrickProto
-import io.grpc.ManagedChannel
-import io.grpc.ManagedChannelBuilder
 
-class RemoteLegoBrickDetector : LegoBrickDetector {
-
-    // TODO Read an address from properties
-    private val channel: ManagedChannel = ManagedChannelBuilder.forAddress("10.0.2.2", 50051)
-        .usePlaintext()
-        .build()
+class RemoteLegoBrickDetector(connectionManager: ConnectionManager) : LegoBrickDetector {
 
     private val legoBrickService: LegoBrickGrpc.LegoBrickBlockingStub =
-        LegoBrickGrpc.newBlockingStub(channel)
+        LegoBrickGrpc.newBlockingStub(connectionManager.getConnectionChannel())
 
     @SuppressLint("RestrictedApi")
     override fun detectBricks(image: ImageProxy): Task<List<LegoBrickDetector.DetectedLegoBrick>> {

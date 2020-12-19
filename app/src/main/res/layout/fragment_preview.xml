@@ -28,10 +28,10 @@
         <Button
             android:id="@+id/start_button"
             android:layout_width="wrap_content"
-            android:layout_height="59dp"
+            android:layout_height="48dp"
             android:layout_marginBottom="32dp"
             android:onClick="@{() -> previewViewModel.onStreamStarted()}"
-            android:text="Start Streaming"
+            android:text="Start analysing"
             app:layout_constraintBottom_toBottomOf="@+id/graphic_overlay"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -39,10 +39,33 @@
         <Button
             android:id="@+id/stop_button"
             android:layout_width="wrap_content"
-            android:layout_height="59dp"
+            android:layout_height="48dp"
             android:layout_marginBottom="32dp"
             android:onClick="@{() -> previewViewModel.onStreamStopped()}"
-            android:text="Stop Streaming"
+            android:text="Stop analysing"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/graphic_overlay"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/start_capture_button"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginBottom="100dp"
+            android:onClick="@{() -> previewViewModel.onCaptureStarted()}"
+            android:text="Start capturing"
+            app:layout_constraintBottom_toBottomOf="@+id/graphic_overlay"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/stop_capture_button"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginBottom="100dp"
+            android:onClick="@{() -> previewViewModel.onCaptureStopped()}"
+            android:text="Stop capturing"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="@+id/graphic_overlay"
             app:layout_constraintEnd_toEndOf="parent"

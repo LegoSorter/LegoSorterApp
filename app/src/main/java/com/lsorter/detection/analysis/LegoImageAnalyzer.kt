@@ -15,7 +15,7 @@ import java.lang.RuntimeException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class ImageAnalyzer(private val graphicOverlay: GraphicOverlay) : ImageAnalysis.Analyzer {
+class LegoImageAnalyzer(private val graphicOverlay: GraphicOverlay) : ImageAnalysis.Analyzer {
     private val executor: ExecutorService = Executors.newSingleThreadExecutor()
     private val detector: LegoBrickDetector = LegoBrickDetectorsFactory.getLegoBrickDetector()
 
@@ -59,7 +59,7 @@ class ImageAnalyzer(private val graphicOverlay: GraphicOverlay) : ImageAnalysis.
     }
 
     private fun onFailure(e: Exception) {
-        Log.e(ImageAnalyzer::class.java.name, "Exception during detecting bricks", e)
+        Log.e(LegoImageAnalyzer::class.java.name, "Exception during detecting bricks", e)
         throw RuntimeException(e)
     }
 }
