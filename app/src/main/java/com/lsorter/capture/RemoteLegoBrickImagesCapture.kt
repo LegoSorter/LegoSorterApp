@@ -34,7 +34,7 @@ class RemoteLegoBrickImagesCapture(val connectionManager: ConnectionManager) : L
                 .setLabel(label)
                 .build()
 
-        legoBrickService.collectImages(request)
+        legoBrickService.collectCroppedImages(request)
     }
 
     override fun captureImages(imageCapture: ImageCapture, frequencyMs: Int) {

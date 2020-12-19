@@ -6,7 +6,7 @@ import io.grpc.ManagedChannelBuilder
 class ConnectionManager {
 
     // TODO Read an address from properties
-    private val channel: ManagedChannel = ManagedChannelBuilder.forAddress("192.168.0.94", 50051)
+    private val channel: ManagedChannel = ManagedChannelBuilder.forAddress("10.0.2.2", 50051)
             .usePlaintext()
             .build()
 
