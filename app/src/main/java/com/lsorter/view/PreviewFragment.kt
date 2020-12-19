@@ -152,6 +152,7 @@ class PreviewFragment : Fragment() {
     private fun stopCamera() {
         cameraProvider?.unbindAll()
         legoImageAnalyzer?.shutdown()
+        legoBrickImagesCapture?.stop()
 
         binding.graphicOverlay.clear()
         binding.viewFinder.removeAllViews()
@@ -159,7 +160,7 @@ class PreviewFragment : Fragment() {
     }
 
     companion object {
-        val QUAD_HD_SIZE = Size(2560, 1440)
+        val QUAD_HD_SIZE = Size(1440, 2560)
         val CAPTURE_FREQUENCY_MS: Int = 200
     }
 }

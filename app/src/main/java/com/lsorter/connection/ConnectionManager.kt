@@ -10,7 +10,7 @@ class ConnectionManager {
             .usePlaintext()
             .build()
 
-    public fun getConnectionChannel(): ManagedChannel {
+    fun getConnectionChannel(): ManagedChannel {
         return channel
     }
 }

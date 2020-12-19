@@ -10,11 +10,13 @@ import com.lsorter.connection.ConnectionManager
 import com.lsorter.detection.detectors.LegoBrickDetector
 import com.lsorter.detection.detectors.LegoBrickGrpc
 import com.lsorter.detection.detectors.LegoBrickProto
+import java.util.concurrent.TimeUnit
 
 class RemoteLegoBrickDetector(connectionManager: ConnectionManager) : LegoBrickDetector {
 
+    private val channel = connectionManager.getConnectionChannel()
     private val legoBrickService: LegoBrickGrpc.LegoBrickBlockingStub =
-        LegoBrickGrpc.newBlockingStub(connectionManager.getConnectionChannel())
+        LegoBrickGrpc.newBlockingStub(channel)
 
     @SuppressLint("RestrictedApi")
     override fun detectBricks(image: ImageProxy): Task<List<LegoBrickDetector.DetectedLegoBrick>> {
@@ -32,5 +34,10 @@ class RemoteLegoBrickDetector(connectionManager: ConnectionManager) : LegoBrickD
             // TODO - return list of detected lego bricks
             emptyList<LegoBrickDetector.DetectedLegoBrick>()
         }
+    }
+
+    override fun onStop() {
+        channel.shutdown()
+        channel.awaitTermination(1000, TimeUnit.MILLISECONDS);
     }
 }

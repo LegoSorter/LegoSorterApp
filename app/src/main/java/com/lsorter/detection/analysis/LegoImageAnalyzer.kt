@@ -25,6 +25,7 @@ class LegoImageAnalyzer(private val graphicOverlay: GraphicOverlay) : ImageAnaly
 
     fun shutdown() {
         synchronized(lock) {
+            detector.onStop()
             isShutdown = true
         }
     }

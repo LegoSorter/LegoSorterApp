@@ -40,4 +40,8 @@ class OnPremiseLegoBrickDetector : LegoBrickDetector {
             .enableMultipleObjects()
             .build()
     }
+
+    override fun onStop() {
+
+    }
 }
