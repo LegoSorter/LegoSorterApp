@@ -2,6 +2,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+
     tools:context=".view.PreviewFragment">
 
     <data>
@@ -11,65 +12,65 @@
             type="com.lsorter.view.PreviewViewModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:weightSum="10"
+        android:orientation="vertical">
 
-        <androidx.camera.view.PreviewView
-            android:id="@+id/viewFinder"
+        <EditText
+            android:id="@+id/brickLabel"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:ems="1"
+            android:inputType="text"
+            android:text="LEGO" />
 
-        <com.lsorter.detection.layer.GraphicOverlay
-            android:id="@+id/graphic_overlay"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="fill_parent"
+            android:layout_weight="9">
 
-        <Button
-            android:id="@+id/start_button"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_marginBottom="32dp"
-            android:onClick="@{() -> previewViewModel.onStreamStarted()}"
-            android:text="Start analysing"
-            app:layout_constraintBottom_toBottomOf="@+id/graphic_overlay"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            <androidx.camera.view.PreviewView
+                android:id="@+id/viewFinder"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-        <Button
-            android:id="@+id/stop_button"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_marginBottom="32dp"
-            android:onClick="@{() -> previewViewModel.onStreamStopped()}"
-            android:text="Stop analysing"
-            android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="@+id/graphic_overlay"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            </androidx.camera.view.PreviewView>
 
-        <Button
-            android:id="@+id/start_capture_button"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_marginBottom="100dp"
-            android:onClick="@{() -> previewViewModel.onCaptureStarted()}"
-            android:text="Start capturing"
-            app:layout_constraintBottom_toBottomOf="@+id/graphic_overlay"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            <com.lsorter.detection.layer.GraphicOverlay
+                android:id="@+id/graphic_overlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
-        <Button
-            android:id="@+id/stop_capture_button"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_marginBottom="100dp"
-            android:onClick="@{() -> previewViewModel.onCaptureStopped()}"
-            android:text="Stop capturing"
-            android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="@+id/graphic_overlay"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+
+            <ToggleButton
+                android:id="@+id/cap_or_analyse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                android:textOff="ANALYZE"
+                android:textOn="CAPTURE" />
+
+            <Button
+                android:id="@+id/startstop"
+                android:layout_width="fill_parent"
+                android:onClick="@{() -> previewViewModel.onActionButtonClicked()}"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="START" />
+
+        </LinearLayout>
+    </LinearLayout>
+
 </layout>

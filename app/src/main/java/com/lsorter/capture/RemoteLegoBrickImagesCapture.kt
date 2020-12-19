@@ -39,7 +39,7 @@ class RemoteLegoBrickImagesCapture() : LegoBrickDatasetCapture {
         legoBrickService.collectCroppedImages(request)
     }
 
-    override fun captureImages(imageCapture: ImageCapture, frequencyMs: Int) {
+    override fun captureImages(imageCapture: ImageCapture, frequencyMs: Int, label: String) {
         scope.launch {
             val canProcessNext = AtomicBoolean(true)
             while (true) {
@@ -48,7 +48,7 @@ class RemoteLegoBrickImagesCapture() : LegoBrickDatasetCapture {
                     imageCapture.takePicture(cameraExecutor,
                         object : ImageCapture.OnImageCapturedCallback() {
                             override fun onCaptureSuccess(image: ImageProxy) {
-                                sendLegoImageWithLabel(image, "lego")
+                                sendLegoImageWithLabel(image, label)
                                 image.close()
                                 canProcessNext.set(true)
                             }

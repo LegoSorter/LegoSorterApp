@@ -24,13 +24,15 @@ class PreviewFragment : Fragment() {
     private lateinit var binding: FragmentPreviewBinding
     private lateinit var viewModel: PreviewViewModel
 
+    private var isRecordingStarted = false
+
     private var cameraProvider: ProcessCameraProvider? = null
     private var legoImageAnalyzer: LegoImageAnalyzer? = null
     private var legoBrickImagesCapture: LegoBrickDatasetCapture? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         binding = FragmentPreviewBinding.inflate(inflater, container, false)
         viewModel = ViewModelProvider(this).get(PreviewViewModel::class.java)
@@ -39,42 +41,30 @@ class PreviewFragment : Fragment() {
 
         prepareCamera()
 
-        viewModel.eventStreamStarted.observe(viewLifecycleOwner, Observer { eventStreamStarted ->
-            if (eventStreamStarted) {
-                binding.startButton.visibility = View.GONE
-                binding.startCaptureButton.visibility = View.GONE
-                analyzeImages()
-                binding.stopButton.visibility = View.VISIBLE
+        viewModel.eventActionButtonClicked.observe(viewLifecycleOwner, Observer { eventActionButtonClicked ->
+            if (eventActionButtonClicked) {
+                if (!isRecordingStarted) {
+                    binding.capOrAnalyse.isEnabled = false
+                    if (!binding.capOrAnalyse.isChecked) {
+                        analyzeImages()
+                    } else {
+                        captureImages(binding.brickLabel.text.toString())
+                    }
+
+                    binding.startstop.text = "STOP"
+                    isRecordingStarted = true
+                } else {
+                    binding.capOrAnalyse.isEnabled = true
+                    if (!binding.capOrAnalyse.isChecked) {
+                        stopImageAnalysis()
+                    } else {
+                        stopCaptureImages()
+                    }
+                    binding.startstop.text = "START"
+                    isRecordingStarted = false
+                }
             }
         })
-
-        viewModel.eventStreamStopped.observe(viewLifecycleOwner, Observer { eventStreamStopped ->
-            if (eventStreamStopped) {
-                binding.stopButton.visibility = View.GONE
-                stopImageAnalysis()
-                binding.startButton.visibility = View.VISIBLE
-                binding.startCaptureButton.visibility = View.VISIBLE
-            }
-        })
-
-        viewModel.eventCaptureStarted.observe(viewLifecycleOwner, Observer { eventCaptureStarted ->
-            if (eventCaptureStarted) {
-                binding.startCaptureButton.visibility = View.GONE
-                binding.startButton.visibility = View.GONE
-                captureImages()
-                binding.stopCaptureButton.visibility = View.VISIBLE
-            }
-        })
-
-        viewModel.eventCaptureStopped.observe(viewLifecycleOwner, Observer { eventCaptureStopped ->
-            if (eventCaptureStopped) {
-                binding.stopCaptureButton.visibility = View.GONE
-                stopCaptureImages()
-                binding.startCaptureButton.visibility = View.VISIBLE
-                binding.startButton.visibility = View.VISIBLE
-            }
-        })
-
 
         return binding.root
     }
@@ -102,14 +92,14 @@ class PreviewFragment : Fragment() {
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
         val analysisUseCase = ImageAnalysis.Builder()
-            .setTargetResolution(QUAD_HD_SIZE)
-            .build()
-            .also {
-                it.setAnalyzer(
-                    ContextCompat.getMainExecutor(this.requireContext()),
-                    imageAnalyzer
-                )
-            }
+                .setTargetResolution(QUAD_HD_SIZE)
+                .build()
+                .also {
+                    it.setAnalyzer(
+                            ContextCompat.getMainExecutor(this.requireContext()),
+                            imageAnalyzer
+                    )
+                }
 
         val preview = Preview.Builder().build()
 
@@ -118,7 +108,7 @@ class PreviewFragment : Fragment() {
         preview.setSurfaceProvider(binding.viewFinder.surfaceProvider)
     }
 
-    private fun captureImages() {
+    private fun captureImages(label: String) {
         val cameraProvider = cameraProvider!!
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
@@ -134,7 +124,7 @@ class PreviewFragment : Fragment() {
         cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview)
         preview.setSurfaceProvider(binding.viewFinder.surfaceProvider)
 
-        this.legoBrickImagesCapture!!.captureImages(imageCapture, frequencyMs = CAPTURE_FREQUENCY_MS)
+        this.legoBrickImagesCapture!!.captureImages(imageCapture, frequencyMs = CAPTURE_FREQUENCY_MS, label = label)
     }
 
     private fun stopImageAnalysis() {
