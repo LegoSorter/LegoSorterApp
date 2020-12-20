@@ -92,7 +92,6 @@ class PreviewFragment : Fragment() {
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
         val analysisUseCase = ImageAnalysis.Builder()
-                .setTargetResolution(QUAD_HD_SIZE)
                 .build()
                 .also {
                     it.setAnalyzer(

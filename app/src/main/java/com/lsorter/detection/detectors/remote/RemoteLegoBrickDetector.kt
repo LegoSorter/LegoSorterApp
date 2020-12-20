@@ -1,6 +1,7 @@
 package com.lsorter.detection.detectors.remote
 
 import android.annotation.SuppressLint
+import android.graphics.Rect
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.internal.utils.ImageUtil
 import com.google.android.gms.tasks.Task
@@ -30,9 +31,12 @@ class RemoteLegoBrickDetector(connectionManager: ConnectionManager) : LegoBrickD
             .build()
 
         return Tasks.call {
-            legoBrickService.recognizeLegoBrickInImage(request)
-            // TODO - return list of detected lego bricks
-            emptyList<LegoBrickDetector.DetectedLegoBrick>()
+            val boxes = legoBrickService.detectBricks(request)
+            val detectedBricks: List<LegoBrickProto.BoundingBoxOrBuilder> = boxes.packetOrBuilderList
+
+            detectedBricks.map {
+                LegoBrickDetector.DetectedLegoBrick(Rect(it.xmin, it.ymax, it.xmax, it.ymin), LegoBrickDetector.Label(it.score, it.label, 0))
+            }
         }
     }
 
