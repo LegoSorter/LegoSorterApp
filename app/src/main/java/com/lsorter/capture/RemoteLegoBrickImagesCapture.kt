@@ -14,7 +14,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
-class RemoteLegoBrickImagesCapture() : LegoBrickDatasetCapture {
+class RemoteLegoBrickImagesCapture : LegoBrickDatasetCapture {
 
     private val connectionManager = ConnectionManager()
     private val connectionChannel = connectionManager.getConnectionChannel()

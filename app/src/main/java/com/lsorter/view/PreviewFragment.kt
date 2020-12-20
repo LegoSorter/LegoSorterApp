@@ -10,6 +10,8 @@ import android.view.ViewGroup
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
+import androidx.camera.core.ImageCapture.FLASH_MODE_ON
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
@@ -114,7 +116,8 @@ class PreviewFragment : Fragment() {
         this.legoBrickImagesCapture = RemoteLegoBrickImagesCapture()
 
         val imageCapture = ImageCapture.Builder()
-                .setTargetResolution(QUAD_HD_SIZE)
+                .setCaptureMode(CAPTURE_MODE_MAXIMIZE_QUALITY)
+                .setFlashMode(FLASH_MODE_ON)
                 .build()
 
         val preview = Preview.Builder().build()
@@ -149,6 +152,6 @@ class PreviewFragment : Fragment() {
 
     companion object {
         val QUAD_HD_SIZE = Size(1440, 2560)
-        val CAPTURE_FREQUENCY_MS: Int = 200
+        val CAPTURE_FREQUENCY_MS: Int = 10
     }
 }
