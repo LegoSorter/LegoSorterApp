@@ -2,6 +2,8 @@ package com.lsorter.capture;
 
 import android.annotation.SuppressLint
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.FLASH_MODE_OFF
+import androidx.camera.core.ImageCapture.FLASH_MODE_ON
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.internal.utils.ImageUtil
 import com.google.protobuf.ByteString
@@ -87,6 +89,10 @@ class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
         }
         connectionChannel.shutdown()
         connectionChannel.awaitTermination(1000, TimeUnit.MILLISECONDS)
+    }
+
+    override fun setFlash(enabled: Boolean) {
+        this.imageCapture.flashMode = if (enabled) FLASH_MODE_ON else FLASH_MODE_OFF
     }
 
     private fun startQueueProcessing(): Job {

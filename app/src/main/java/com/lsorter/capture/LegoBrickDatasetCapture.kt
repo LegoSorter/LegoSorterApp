@@ -5,4 +5,5 @@ interface LegoBrickDatasetCapture {
     fun captureImage(label: String)
     fun setOnImageCapturedListener(listener: () -> Unit)
     fun stop()
+    fun setFlash(enabled: Boolean)
 }

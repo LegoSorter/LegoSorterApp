@@ -33,6 +33,7 @@ class CaptureFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = CaptureFragmentBinding.inflate(layoutInflater, container, false)
+
         return binding.root
     }
 
@@ -42,6 +43,12 @@ class CaptureFragment : Fragment() {
         val setupCameraFuture = setupCamera()
         setupCameraFuture.addListener(
             Runnable {
+                binding.flashButton.setOnClickListener { button ->
+                    button.isActivated = !button.isActivated
+
+                    this.legoBrickImagesCapture.setFlash(button.isActivated)
+                }
+
                 if (args.autoCaptureMode) {
                     scheduleImagesCapture()
                 } else {

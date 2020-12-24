@@ -11,6 +11,16 @@
         android:layout_height="fill_parent">
 
         <Button
+            android:id="@+id/flash_button"
+            android:layout_width="@dimen/box_size"
+            android:layout_height="@dimen/box_size"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/ic_flash"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
             android:id="@+id/capture_button"
             android:layout_width="@dimen/box_size"
             android:layout_height="@dimen/box_size"
@@ -29,7 +39,7 @@
             <com.lsorter.detection.layer.GraphicOverlay
                 android:id="@+id/graphic_overlay"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="720dp" />
 
         </androidx.camera.view.PreviewView>
 
