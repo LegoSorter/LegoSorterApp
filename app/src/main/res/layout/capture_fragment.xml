@@ -16,6 +16,7 @@
             android:layout_height="@dimen/box_size"
             android:layout_marginBottom="16dp"
             android:background="@drawable/image_capture_button"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/viewFinder"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/viewFinder" />

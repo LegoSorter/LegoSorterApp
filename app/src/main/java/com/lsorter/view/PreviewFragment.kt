@@ -126,9 +126,4 @@ class PreviewFragment : Fragment() {
         binding.viewFinder.removeAllViews()
         binding.invalidateAll()
     }
-
-    companion object {
-        val QUAD_HD_SIZE = Size(1440, 2560)
-        val CAPTURE_FREQUENCY_MS: Int = 10
-    }
 }

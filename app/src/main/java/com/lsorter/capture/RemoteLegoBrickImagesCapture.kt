@@ -1,7 +1,6 @@
 package com.lsorter.capture;
 
 import android.annotation.SuppressLint
-import android.media.MediaActionSound
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.internal.utils.ImageUtil
@@ -9,6 +8,7 @@ import com.google.protobuf.ByteString
 import com.lsorter.connection.ConnectionManager
 import com.lsorter.detection.detectors.LegoBrickGrpc
 import com.lsorter.detection.detectors.LegoBrickProto
+import io.grpc.ManagedChannel
 import kotlinx.coroutines.*
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
@@ -19,17 +19,20 @@ import java.util.concurrent.ConcurrentLinkedQueue
 class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
     LegoBrickDatasetCapture {
 
-    private val connectionManager = ConnectionManager()
-    private val connectionChannel = connectionManager.getConnectionChannel()
-    private val cameraExecutor: Executor = Executors.newSingleThreadExecutor()
-    private var scope = MainScope()
-    private val requestScope = CoroutineScope(Dispatchers.Default)
-    private var requestQueue = ConcurrentLinkedQueue<LegoBrickProto.ImageStore>()
+    private var queueProcessing: Job
+    private val connectionManager: ConnectionManager = ConnectionManager()
+    private val connectionChannel: ManagedChannel
+    private val cameraExecutor: Executor
+    private var scope: CoroutineScope
+    private val requestScope: CoroutineScope
+    private var requestQueue: ConcurrentLinkedQueue<LegoBrickProto.ImageStore>
     private var onImageCapturedListener: () -> Unit = { }
-    private val legoBrickService: LegoBrickGrpc.LegoBrickBlockingStub =
-        LegoBrickGrpc.newBlockingStub(connectionChannel)
+    private val legoBrickService: LegoBrickGrpc.LegoBrickBlockingStub
 
-    private val canProcessNext: AtomicBoolean = AtomicBoolean(true)
+    private val canProcessNext: AtomicBoolean
+
+    @Volatile
+    private var terminated: Boolean = false
 
     @SuppressLint("RestrictedApi", "CheckResult")
     fun sendLegoImageWithLabel(image: ImageProxy, label: String) {
@@ -47,21 +50,12 @@ class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
 
     override fun captureImages(frequencyMs: Int, label: String) {
         scope.launch {
-            while (true) {
+            while (!terminated) {
                 if (canProcessNext.get()) {
-                    val sound = MediaActionSound()
-                    sound.play(MediaActionSound.SHUTTER_CLICK)
                     captureImage(label)
                     delay(frequencyMs.toLong())
                 }
-            }
-        }
-
-        requestScope.launch {
-            while (true) {
-                if (requestQueue.isEmpty()) continue
-                val request = requestQueue.poll()
-                legoBrickService.collectCroppedImages(request)
+                delay(10)
             }
         }
     }
@@ -83,15 +77,36 @@ class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
         this.onImageCapturedListener = listener
     }
 
+    @SuppressLint("CheckResult")
     override fun stop() {
-        requestScope.cancel()
-        scope.cancel()
-        scope = MainScope()
+        terminated = true
+        queueProcessing.cancel()
         while (!requestQueue.isEmpty()) {
-            var request = requestQueue.poll()
+            val request = requestQueue.poll()
             legoBrickService.collectCroppedImages(request)
         }
         connectionChannel.shutdown()
         connectionChannel.awaitTermination(1000, TimeUnit.MILLISECONDS)
+    }
+
+    private fun startQueueProcessing(): Job {
+        return requestScope.launch {
+            while (true) {
+                if (requestQueue.isEmpty()) continue
+                val request = requestQueue.poll()
+                legoBrickService.collectCroppedImages(request)
+            }
+        }
+    }
+
+    init {
+        this.connectionChannel = connectionManager.getConnectionChannel()
+        this.cameraExecutor = Executors.newSingleThreadExecutor()
+        this.scope = MainScope()
+        this.requestScope = CoroutineScope(Dispatchers.Default)
+        this.requestQueue = ConcurrentLinkedQueue()
+        this.legoBrickService = LegoBrickGrpc.newBlockingStub(connectionChannel)
+        this.canProcessNext = AtomicBoolean(true)
+        this.queueProcessing = this.startQueueProcessing()
     }
 }

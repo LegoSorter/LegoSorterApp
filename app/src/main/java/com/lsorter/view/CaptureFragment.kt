@@ -16,6 +16,9 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.lsorter.capture.LegoBrickDatasetCapture
 import com.lsorter.capture.RemoteLegoBrickImagesCapture
 import com.lsorter.databinding.CaptureFragmentBinding
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class CaptureFragment : Fragment() {
 
@@ -51,23 +54,32 @@ class CaptureFragment : Fragment() {
 
     private fun registerCaptureImageOnButtonClick() {
         binding.captureButton.visibility = View.VISIBLE
+
+        this.legoBrickImagesCapture.setOnImageCapturedListener {
+            binding.captureButton.isClickable = true
+        }
+
         binding.captureButton.setOnClickListener {
             binding.captureButton.isClickable = false
             this.legoBrickImagesCapture.captureImage(label = args.legoClassLabel)
         }
 
-        this.legoBrickImagesCapture.setOnImageCapturedListener {
-            binding.captureButton.isClickable = true
-        }
     }
 
     private fun scheduleImagesCapture() {
         this.legoBrickImagesCapture.setOnImageCapturedListener {
-            Toast.makeText(
-                this.requireContext(),
-                "Photo captured",
-                Toast.LENGTH_SHORT
-            ).show()
+            activity?.runOnUiThread {
+                val makeText = Toast.makeText(
+                    this.requireContext(),
+                    "Photo captured",
+                    Toast.LENGTH_SHORT
+                )
+                GlobalScope.launch {
+                    makeText.show()
+                    delay(100)
+                    makeText.cancel()
+                }
+            }
         }
         this.legoBrickImagesCapture.captureImages(
             frequencyMs = args.captureIntervalMs,

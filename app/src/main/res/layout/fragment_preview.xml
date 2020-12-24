@@ -18,15 +18,6 @@
         android:weightSum="10"
         android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/brickLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.5"
-            android:ems="1"
-            android:inputType="text"
-            android:text="LEGO" />
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
