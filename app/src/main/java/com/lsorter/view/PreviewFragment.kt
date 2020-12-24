@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.lsorter.capture.LegoBrickDatasetCapture
 import com.lsorter.capture.RemoteLegoBrickImagesCapture
 import com.lsorter.databinding.FragmentPreviewBinding
@@ -33,45 +34,42 @@ class PreviewFragment : Fragment() {
     private var legoImageAnalyzer: LegoImageAnalyzer? = null
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         binding = FragmentPreviewBinding.inflate(inflater, container, false)
         viewModel = ViewModelProvider(this).get(PreviewViewModel::class.java)
         binding.previewViewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
-        binding.capOrAnalyse.setOnClickListener(
-                Navigation.createNavigateOnClickListener(
-                        PreviewFragmentDirections.actionPreviewFragmentToCaptureDialogFragment()
-                )
-        )
 
         prepareCamera()
 
-        viewModel.eventActionButtonClicked.observe(viewLifecycleOwner, Observer { eventActionButtonClicked ->
-            if (eventActionButtonClicked) {
-                if (!isRecordingStarted) {
-                    binding.capOrAnalyse.isEnabled = false
-                    if (!binding.capOrAnalyse.isChecked) {
-                        analyzeImages()
+        viewModel.eventActionButtonClicked.observe(
+            viewLifecycleOwner,
+            Observer { eventActionButtonClicked ->
+                if (eventActionButtonClicked) {
+                    if (!isRecordingStarted) {
+                        binding.capOrAnalyse.isEnabled = false
+                        if (!binding.capOrAnalyse.isChecked) {
+                            analyzeImages()
+                        } else {
+                            stopCamera()
+                            findNavController().navigate(PreviewFragmentDirections.actionPreviewFragmentToCaptureDialogFragment())
+                        }
+
+                        binding.startstop.text = "STOP"
+                        isRecordingStarted = true
                     } else {
+                        binding.capOrAnalyse.isEnabled = true
+                        if (!binding.capOrAnalyse.isChecked) {
+                            stopImageAnalysis()
+                        }
 
+                        binding.startstop.text = "START"
+                        isRecordingStarted = false
                     }
-
-                    binding.startstop.text = "STOP"
-                    isRecordingStarted = true
-                } else {
-                    binding.capOrAnalyse.isEnabled = true
-                    if (!binding.capOrAnalyse.isChecked) {
-                        stopImageAnalysis()
-                    } else {
-
-                    }
-                    binding.startstop.text = "START"
-                    isRecordingStarted = false
                 }
-            }
-        })
+            })
 
         return binding.root
     }
@@ -99,13 +97,13 @@ class PreviewFragment : Fragment() {
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
         val analysisUseCase = ImageAnalysis.Builder()
-                .build()
-                .also {
-                    it.setAnalyzer(
-                            ContextCompat.getMainExecutor(this.requireContext()),
-                            imageAnalyzer
-                    )
-                }
+            .build()
+            .also {
+                it.setAnalyzer(
+                    ContextCompat.getMainExecutor(this.requireContext()),
+                    imageAnalyzer
+                )
+            }
 
         val preview = Preview.Builder().build()
 
