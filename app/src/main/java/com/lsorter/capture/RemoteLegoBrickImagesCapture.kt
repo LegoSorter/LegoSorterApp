@@ -14,19 +14,21 @@ import io.grpc.ManagedChannel
 import kotlinx.coroutines.*
 import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.log
 
 class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
     LegoBrickDatasetCapture {
 
+    private var serviceExecutor: ExecutorService
+    private var queueProcessingExecutor: ExecutorService
     private var captureExecutor: ExecutorService
-    private var queueProcessing: Job
+    private val cameraExecutor: ExecutorService
     private val connectionManager: ConnectionManager = ConnectionManager()
     private val connectionChannel: ManagedChannel
-    private val cameraExecutor: Executor
-    private val requestScope: CoroutineScope
+    private val imageCaptureLock = Any()
     private var requestQueue: ConcurrentLinkedQueue<LegoBrickProto.ImageStore>
     private var onImageCapturedListener: () -> Unit = { }
-    private val legoBrickService: LegoBrickGrpc.LegoBrickBlockingStub
+    private val legoBrickService: LegoBrickGrpc.LegoBrickFutureStub
     private val canProcessNext: AtomicBoolean
     private var terminated: AtomicBoolean = AtomicBoolean(false)
 
@@ -57,7 +59,7 @@ class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
 
     override fun captureImage(label: String) {
         canProcessNext.set(false)
-        synchronized(canProcessNext) {
+        synchronized(imageCaptureLock) {
             imageCapture.takePicture(cameraExecutor,
                 object : ImageCapture.OnImageCapturedCallback() {
                     override fun onCaptureSuccess(image: ImageProxy) {
@@ -74,42 +76,49 @@ class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
         this.onImageCapturedListener = listener
     }
 
-    @SuppressLint("CheckResult")
-    override fun stop() {
-        terminated.set(true)
-        queueProcessing.cancel()
-        while (!requestQueue.isEmpty()) {
-            val request = requestQueue.poll()
-            legoBrickService.collectCroppedImages(request)
-        }
-        connectionChannel.shutdown()
-        connectionChannel.awaitTermination(1000, TimeUnit.MILLISECONDS)
-    }
-
     override fun setFlash(enabled: Boolean) {
-        synchronized(canProcessNext) {
+        synchronized(imageCaptureLock) {
             this.imageCapture.flashMode = if (enabled) FLASH_MODE_ON else FLASH_MODE_OFF
         }
     }
 
-    private fun startQueueProcessing(): Job {
-        return requestScope.launch {
-            while (true) {
+    private fun startQueueProcessing() {
+        this.queueProcessingExecutor.submit {
+            while (!terminated.get() || !requestQueue.isEmpty()) {
                 if (requestQueue.isEmpty()) continue
                 val request = requestQueue.poll()
+                print("Queue - processing next request\n")
                 legoBrickService.collectCroppedImages(request)
+                print("Queue - done\n")
             }
         }
+    }
+
+    @SuppressLint("CheckResult")
+    override fun stop() {
+        terminated.set(true)
+        captureExecutor.shutdown()
+        cameraExecutor.shutdown()
+        queueProcessingExecutor.shutdown()
+        queueProcessingExecutor.awaitTermination(1000, TimeUnit.MILLISECONDS)
+        connectionChannel.shutdown()
+        connectionChannel.awaitTermination(1000, TimeUnit.MILLISECONDS)
+        serviceExecutor.shutdown()
+        serviceExecutor.awaitTermination(1000, TimeUnit.MILLISECONDS)
     }
 
     init {
         this.connectionChannel = connectionManager.getConnectionChannel()
         this.cameraExecutor = Executors.newSingleThreadExecutor()
         this.captureExecutor = Executors.newSingleThreadExecutor()
-        this.requestScope = CoroutineScope(Dispatchers.Default)
+        this.queueProcessingExecutor = Executors.newFixedThreadPool(1)
+        this.serviceExecutor = Executors.newFixedThreadPool(1)
         this.requestQueue = ConcurrentLinkedQueue()
-        this.legoBrickService = LegoBrickGrpc.newBlockingStub(connectionChannel)
+        this.legoBrickService = LegoBrickGrpc.newFutureStub(connectionChannel)
+            .withWaitForReady()
+            .withExecutor(serviceExecutor)
         this.canProcessNext = AtomicBoolean(true)
-        this.queueProcessing = this.startQueueProcessing()
+
+        startQueueProcessing()
     }
 }
