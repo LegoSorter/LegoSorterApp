@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,17 +10,27 @@
         android:layout_width="match_parent"
         android:layout_height="fill_parent">
 
+        <Button
+            android:id="@+id/capture_button"
+            android:layout_width="@dimen/box_size"
+            android:layout_height="@dimen/box_size"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/image_capture_button"
+            app:layout_constraintBottom_toBottomOf="@+id/viewFinder"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/viewFinder" />
+
         <androidx.camera.view.PreviewView
             android:id="@+id/viewFinder"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        </androidx.camera.view.PreviewView>
+            <com.lsorter.detection.layer.GraphicOverlay
+                android:id="@+id/graphic_overlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
-        <com.lsorter.detection.layer.GraphicOverlay
-            android:id="@+id/graphic_overlay"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+        </androidx.camera.view.PreviewView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -36,7 +36,7 @@
             android:id="@+id/action_captureDialogFragment_to_captureFragment"
             app:destination="@id/captureFragment" >
             <argument
-                android:name="legoClass"
+                android:name="legoClassLabel"
                 app:argType="string"
                 android:defaultValue="unknown" />
             <argument
@@ -51,12 +51,16 @@
         android:label="capture_fragment"
         tools:layout="@layout/capture_fragment" >
         <argument
-            android:name="legoClass"
+            android:name="legoClassLabel"
             app:argType="string"
             android:defaultValue="unknown" />
         <argument
             android:name="captureIntervalMs"
             app:argType="integer"
             android:defaultValue="1000" />
+        <argument
+            android:name="autoCaptureMode"
+            app:argType="boolean"
+            android:defaultValue="true" />
     </fragment>
 </navigation>

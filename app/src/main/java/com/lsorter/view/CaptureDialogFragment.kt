@@ -35,8 +35,9 @@ class CaptureDialogFragment : DialogFragment() {
                 .setPositiveButton("Start") { _, _ ->
                     findNavController().navigate(
                         CaptureDialogFragmentDirections.actionCaptureDialogFragmentToCaptureFragment(
-                            binding.legoClassLabel.text.toString(),
-                            calculateInterval(binding.seekBar.progress)
+                            legoClassLabel = binding.legoClassLabel.text.toString(),
+                            captureIntervalMs = calculateInterval(binding.seekBar.progress),
+                            autoCaptureMode = binding.automaticModeSwitch.isChecked
                         )
                     )
                 }

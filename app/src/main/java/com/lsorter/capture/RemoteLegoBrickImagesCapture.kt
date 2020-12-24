@@ -16,7 +16,8 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.ConcurrentLinkedQueue
 
-class RemoteLegoBrickImagesCapture : LegoBrickDatasetCapture {
+class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
+    LegoBrickDatasetCapture {
 
     private val connectionManager = ConnectionManager()
     private val connectionChannel = connectionManager.getConnectionChannel()
@@ -24,53 +25,58 @@ class RemoteLegoBrickImagesCapture : LegoBrickDatasetCapture {
     private var scope = MainScope()
     private val requestScope = CoroutineScope(Dispatchers.Default)
     private var requestQueue = ConcurrentLinkedQueue<LegoBrickProto.ImageStore>()
-    private var onImageCapturedListener : () -> Unit = { }
-
+    private var onImageCapturedListener: () -> Unit = { }
     private val legoBrickService: LegoBrickGrpc.LegoBrickBlockingStub =
-            LegoBrickGrpc.newBlockingStub(connectionChannel)
+        LegoBrickGrpc.newBlockingStub(connectionChannel)
+
+    private val canProcessNext: AtomicBoolean = AtomicBoolean(true)
 
     @SuppressLint("RestrictedApi", "CheckResult")
     fun sendLegoImageWithLabel(image: ImageProxy, label: String) {
         val request = LegoBrickProto.ImageStore.newBuilder()
-                .setImage(
-                        ByteString.copyFrom(
-                                ImageUtil.imageToJpegByteArray(image)
-                        )
+            .setImage(
+                ByteString.copyFrom(
+                    ImageUtil.imageToJpegByteArray(image)
                 )
-                .setRotation(image.imageInfo.rotationDegrees)
-                .setLabel(label)
-                .build()
+            )
+            .setRotation(image.imageInfo.rotationDegrees)
+            .setLabel(label)
+            .build()
         requestQueue.add(request)
     }
 
-    override fun captureImages(imageCapture: ImageCapture, frequencyMs: Int, label: String) {
+    override fun captureImages(frequencyMs: Int, label: String) {
         scope.launch {
-            val canProcessNext = AtomicBoolean(true)
             while (true) {
                 if (canProcessNext.get()) {
-                    canProcessNext.set(false)
                     val sound = MediaActionSound()
                     sound.play(MediaActionSound.SHUTTER_CLICK)
-                    imageCapture.takePicture(cameraExecutor,
-                            object : ImageCapture.OnImageCapturedCallback() {
-                                override fun onCaptureSuccess(image: ImageProxy) {
-                                    onImageCapturedListener()
-                                    sendLegoImageWithLabel(image, label)
-                                    image.close()
-                                    canProcessNext.set(true)
-                                }
-                            })
+                    captureImage(label)
+                    delay(frequencyMs.toLong())
                 }
-                delay(frequencyMs.toLong())
             }
         }
+
         requestScope.launch {
             while (true) {
                 if (requestQueue.isEmpty()) continue
-                var request = requestQueue.poll()
+                val request = requestQueue.poll()
                 legoBrickService.collectCroppedImages(request)
             }
         }
+    }
+
+    override fun captureImage(label: String) {
+        canProcessNext.set(false)
+        imageCapture.takePicture(cameraExecutor,
+            object : ImageCapture.OnImageCapturedCallback() {
+                override fun onCaptureSuccess(image: ImageProxy) {
+                    sendLegoImageWithLabel(image, label)
+                    image.close()
+                    canProcessNext.set(true)
+                    onImageCapturedListener()
+                }
+            })
     }
 
     override fun setOnImageCapturedListener(listener: () -> Unit) {
