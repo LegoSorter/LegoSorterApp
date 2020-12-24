@@ -32,16 +32,18 @@ class RemoteLegoBrickDetector(connectionManager: ConnectionManager) : LegoBrickD
 
         return Tasks.call {
             val boxes = legoBrickService.detectBricks(request)
-            val detectedBricks: List<LegoBrickProto.BoundingBoxOrBuilder> = boxes.packetOrBuilderList
+            val detectedBricks: List<LegoBrickProto.BoundingBoxOrBuilder> =
+                boxes.packetOrBuilderList
 
             detectedBricks.map {
-                LegoBrickDetector.DetectedLegoBrick(Rect(it.xmin, it.ymax, it.xmax, it.ymin), LegoBrickDetector.Label(it.score, it.label, 0))
+                LegoBrickDetector.DetectedLegoBrick(
+                    Rect(it.xmin, it.ymax, it.xmax, it.ymin),
+                    LegoBrickDetector.Label(it.score, it.label, 0)
+                )
             }
         }
     }
 
     override fun onStop() {
-        channel.shutdown()
-        channel.awaitTermination(1000, TimeUnit.MILLISECONDS);
     }
 }

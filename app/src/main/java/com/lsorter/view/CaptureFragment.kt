@@ -63,7 +63,9 @@ class CaptureFragment : Fragment() {
         binding.captureButton.visibility = View.VISIBLE
 
         this.legoBrickImagesCapture.setOnImageCapturedListener {
-            binding.captureButton.isClickable = true
+            activity?.runOnUiThread {
+                binding.captureButton.isClickable = true
+            }
         }
 
         binding.captureButton.setOnClickListener {
@@ -88,6 +90,7 @@ class CaptureFragment : Fragment() {
                 }
             }
         }
+
         this.legoBrickImagesCapture.captureImages(
             frequencyMs = args.captureIntervalMs,
             label = args.legoClassLabel
@@ -119,8 +122,8 @@ class CaptureFragment : Fragment() {
     }
 
     override fun onDestroy() {
-        cameraProvider.unbindAll()
         legoBrickImagesCapture.stop()
+        cameraProvider.unbindAll()
         binding.graphicOverlay.clear()
         binding.viewFinder.removeAllViews()
         super.onDestroy()

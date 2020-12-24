@@ -101,10 +101,8 @@ class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
         cameraExecutor.shutdown()
         queueProcessingExecutor.shutdown()
         queueProcessingExecutor.awaitTermination(1000, TimeUnit.MILLISECONDS)
-        connectionChannel.shutdown()
-        connectionChannel.awaitTermination(1000, TimeUnit.MILLISECONDS)
         serviceExecutor.shutdown()
-        serviceExecutor.awaitTermination(1000, TimeUnit.MILLISECONDS)
+        serviceExecutor.awaitTermination(5000, TimeUnit.MILLISECONDS)
     }
 
     init {
