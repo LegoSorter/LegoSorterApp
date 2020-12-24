@@ -17,6 +17,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
 import com.lsorter.capture.LegoBrickDatasetCapture
 import com.lsorter.capture.RemoteLegoBrickImagesCapture
 import com.lsorter.databinding.FragmentPreviewBinding
@@ -30,7 +31,6 @@ class PreviewFragment : Fragment() {
 
     private var cameraProvider: ProcessCameraProvider? = null
     private var legoImageAnalyzer: LegoImageAnalyzer? = null
-    private var legoBrickImagesCapture: LegoBrickDatasetCapture? = null
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
@@ -40,6 +40,11 @@ class PreviewFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(PreviewViewModel::class.java)
         binding.previewViewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
+        binding.capOrAnalyse.setOnClickListener(
+                Navigation.createNavigateOnClickListener(
+                        PreviewFragmentDirections.actionPreviewFragmentToCaptureDialogFragment()
+                )
+        )
 
         prepareCamera()
 
@@ -50,7 +55,7 @@ class PreviewFragment : Fragment() {
                     if (!binding.capOrAnalyse.isChecked) {
                         analyzeImages()
                     } else {
-                        captureImages(binding.brickLabel.text.toString())
+
                     }
 
                     binding.startstop.text = "STOP"
@@ -60,7 +65,7 @@ class PreviewFragment : Fragment() {
                     if (!binding.capOrAnalyse.isChecked) {
                         stopImageAnalysis()
                     } else {
-                        stopCaptureImages()
+
                     }
                     binding.startstop.text = "START"
                     isRecordingStarted = false
@@ -109,32 +114,7 @@ class PreviewFragment : Fragment() {
         preview.setSurfaceProvider(binding.viewFinder.surfaceProvider)
     }
 
-    private fun captureImages(label: String) {
-        val cameraProvider = cameraProvider!!
-        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-        this.legoBrickImagesCapture = RemoteLegoBrickImagesCapture()
-
-        val imageCapture = ImageCapture.Builder()
-                .setCaptureMode(CAPTURE_MODE_MAXIMIZE_QUALITY)
-                .setFlashMode(FLASH_MODE_ON)
-                .build()
-
-        val preview = Preview.Builder().build()
-
-        cameraProvider.unbindAll()
-        cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview)
-        preview.setSurfaceProvider(binding.viewFinder.surfaceProvider)
-
-        this.legoBrickImagesCapture!!.captureImages(imageCapture, frequencyMs = CAPTURE_FREQUENCY_MS, label = label)
-    }
-
     private fun stopImageAnalysis() {
-        stopCamera()
-        prepareCamera()
-    }
-
-    private fun stopCaptureImages() {
         stopCamera()
         prepareCamera()
     }
@@ -143,7 +123,6 @@ class PreviewFragment : Fragment() {
     private fun stopCamera() {
         cameraProvider?.unbindAll()
         legoImageAnalyzer?.shutdown()
-        legoBrickImagesCapture?.stop()
 
         binding.graphicOverlay.clear()
         binding.viewFinder.removeAllViews()

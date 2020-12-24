@@ -24,6 +24,7 @@ class RemoteLegoBrickImagesCapture : LegoBrickDatasetCapture {
     private var scope = MainScope()
     private val requestScope = CoroutineScope(Dispatchers.Default)
     private var requestQueue = ConcurrentLinkedQueue<LegoBrickProto.ImageStore>()
+    private var onImageCapturedListener : () -> Unit = { }
 
     private val legoBrickService: LegoBrickGrpc.LegoBrickBlockingStub =
             LegoBrickGrpc.newBlockingStub(connectionChannel)
@@ -40,7 +41,6 @@ class RemoteLegoBrickImagesCapture : LegoBrickDatasetCapture {
                 .setLabel(label)
                 .build()
         requestQueue.add(request)
-//        legoBrickService.collectCroppedImages(request)
     }
 
     override fun captureImages(imageCapture: ImageCapture, frequencyMs: Int, label: String) {
@@ -54,6 +54,7 @@ class RemoteLegoBrickImagesCapture : LegoBrickDatasetCapture {
                     imageCapture.takePicture(cameraExecutor,
                             object : ImageCapture.OnImageCapturedCallback() {
                                 override fun onCaptureSuccess(image: ImageProxy) {
+                                    onImageCapturedListener()
                                     sendLegoImageWithLabel(image, label)
                                     image.close()
                                     canProcessNext.set(true)
@@ -70,6 +71,10 @@ class RemoteLegoBrickImagesCapture : LegoBrickDatasetCapture {
                 legoBrickService.collectCroppedImages(request)
             }
         }
+    }
+
+    override fun setOnImageCapturedListener(listener: () -> Unit) {
+        this.onImageCapturedListener = listener
     }
 
     override fun stop() {

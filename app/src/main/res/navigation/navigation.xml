@@ -22,5 +22,41 @@
         android:id="@+id/previewFragment"
         android:name="com.lsorter.view.PreviewFragment"
         android:label="fragment_preview"
-        tools:layout="@layout/fragment_preview" />
+        tools:layout="@layout/fragment_preview" >
+        <action
+            android:id="@+id/action_previewFragment_to_captureDialogFragment"
+            app:destination="@id/captureDialogFragment" />
+    </fragment>
+    <dialog
+        android:id="@+id/captureDialogFragment"
+        android:name="com.lsorter.view.CaptureDialogFragment"
+        android:label="fragment_capture_dialog"
+        tools:layout="@layout/fragment_capture_dialog" >
+        <action
+            android:id="@+id/action_captureDialogFragment_to_captureFragment"
+            app:destination="@id/captureFragment" >
+            <argument
+                android:name="legoClass"
+                app:argType="string"
+                android:defaultValue="unknown" />
+            <argument
+                android:name="captureIntervalMs"
+                app:argType="integer"
+                android:defaultValue="1000" />
+        </action>
+    </dialog>
+    <fragment
+        android:id="@+id/captureFragment"
+        android:name="com.lsorter.view.CaptureFragment"
+        android:label="capture_fragment"
+        tools:layout="@layout/capture_fragment" >
+        <argument
+            android:name="legoClass"
+            app:argType="string"
+            android:defaultValue="unknown" />
+        <argument
+            android:name="captureIntervalMs"
+            app:argType="integer"
+            android:defaultValue="1000" />
+    </fragment>
 </navigation>
