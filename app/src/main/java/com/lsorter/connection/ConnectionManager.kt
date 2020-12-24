@@ -6,7 +6,7 @@ import io.grpc.ManagedChannelBuilder
 class ConnectionManager {
 
     fun getConnectionChannel(): ManagedChannel {
-        return ManagedChannelBuilder.forAddress("10.0.2.2", 50051)
+        return ManagedChannelBuilder.forAddress("192.168.0.94", 50051)
             .usePlaintext()
             .build()
     }

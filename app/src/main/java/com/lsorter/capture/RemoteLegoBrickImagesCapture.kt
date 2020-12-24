@@ -12,29 +12,23 @@ import com.lsorter.detection.detectors.LegoBrickGrpc
 import com.lsorter.detection.detectors.LegoBrickProto
 import io.grpc.ManagedChannel
 import kotlinx.coroutines.*
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.ConcurrentLinkedQueue
 
 class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
     LegoBrickDatasetCapture {
 
+    private var captureExecutor: ExecutorService
     private var queueProcessing: Job
     private val connectionManager: ConnectionManager = ConnectionManager()
     private val connectionChannel: ManagedChannel
     private val cameraExecutor: Executor
-    private var scope: CoroutineScope
     private val requestScope: CoroutineScope
     private var requestQueue: ConcurrentLinkedQueue<LegoBrickProto.ImageStore>
     private var onImageCapturedListener: () -> Unit = { }
     private val legoBrickService: LegoBrickGrpc.LegoBrickBlockingStub
-
     private val canProcessNext: AtomicBoolean
-
-    @Volatile
-    private var terminated: Boolean = false
+    private var terminated: AtomicBoolean = AtomicBoolean(false)
 
     @SuppressLint("RestrictedApi", "CheckResult")
     fun sendLegoImageWithLabel(image: ImageProxy, label: String) {
@@ -51,28 +45,29 @@ class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
     }
 
     override fun captureImages(frequencyMs: Int, label: String) {
-        scope.launch {
-            while (!terminated) {
+        captureExecutor.submit {
+            while (!terminated.get()) {
                 if (canProcessNext.get()) {
                     captureImage(label)
-                    delay(frequencyMs.toLong())
+                    Thread.sleep(frequencyMs.toLong())
                 }
-                delay(10)
             }
         }
     }
 
     override fun captureImage(label: String) {
         canProcessNext.set(false)
-        imageCapture.takePicture(cameraExecutor,
-            object : ImageCapture.OnImageCapturedCallback() {
-                override fun onCaptureSuccess(image: ImageProxy) {
-                    sendLegoImageWithLabel(image, label)
-                    image.close()
-                    canProcessNext.set(true)
-                    onImageCapturedListener()
-                }
-            })
+        synchronized(canProcessNext) {
+            imageCapture.takePicture(cameraExecutor,
+                object : ImageCapture.OnImageCapturedCallback() {
+                    override fun onCaptureSuccess(image: ImageProxy) {
+                        sendLegoImageWithLabel(image, label)
+                        image.close()
+                        canProcessNext.set(true)
+                        onImageCapturedListener()
+                    }
+                })
+        }
     }
 
     override fun setOnImageCapturedListener(listener: () -> Unit) {
@@ -81,7 +76,7 @@ class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
 
     @SuppressLint("CheckResult")
     override fun stop() {
-        terminated = true
+        terminated.set(true)
         queueProcessing.cancel()
         while (!requestQueue.isEmpty()) {
             val request = requestQueue.poll()
@@ -92,7 +87,9 @@ class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
     }
 
     override fun setFlash(enabled: Boolean) {
-        this.imageCapture.flashMode = if (enabled) FLASH_MODE_ON else FLASH_MODE_OFF
+        synchronized(canProcessNext) {
+            this.imageCapture.flashMode = if (enabled) FLASH_MODE_ON else FLASH_MODE_OFF
+        }
     }
 
     private fun startQueueProcessing(): Job {
@@ -108,7 +105,7 @@ class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
     init {
         this.connectionChannel = connectionManager.getConnectionChannel()
         this.cameraExecutor = Executors.newSingleThreadExecutor()
-        this.scope = MainScope()
+        this.captureExecutor = Executors.newSingleThreadExecutor()
         this.requestScope = CoroutineScope(Dispatchers.Default)
         this.requestQueue = ConcurrentLinkedQueue()
         this.legoBrickService = LegoBrickGrpc.newBlockingStub(connectionChannel)

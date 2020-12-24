@@ -105,7 +105,7 @@ class CaptureFragment : Fragment() {
 
             val imageCapture = ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
-                .setFlashMode(ImageCapture.FLASH_MODE_ON)
+                .setFlashMode(ImageCapture.FLASH_MODE_OFF)
                 .build()
 
             cameraProvider.unbindAll()
