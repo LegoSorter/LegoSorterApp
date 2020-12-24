@@ -72,7 +72,7 @@ class CaptureDialogFragment : DialogFragment() {
     }
 
     companion object {
-        const val SEEK_BAR_CAPTURE_INTERVAL_STEP_MS: Int = 100
-        const val SEEK_BAR_CAPTURE_MIN_VALUE_MS: Int = 200
+        const val SEEK_BAR_CAPTURE_INTERVAL_STEP_MS: Int = 250
+        const val SEEK_BAR_CAPTURE_MIN_VALUE_MS: Int = 500
     }
 }

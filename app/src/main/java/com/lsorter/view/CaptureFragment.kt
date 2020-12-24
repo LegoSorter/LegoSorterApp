@@ -83,7 +83,7 @@ class CaptureFragment : Fragment() {
                 )
                 GlobalScope.launch {
                     makeText.show()
-                    delay(100)
+                    delay(500)
                     makeText.cancel()
                 }
             }
