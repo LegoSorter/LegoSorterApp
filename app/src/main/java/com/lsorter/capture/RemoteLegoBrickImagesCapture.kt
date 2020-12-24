@@ -97,12 +97,20 @@ class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
     @SuppressLint("CheckResult")
     override fun stop() {
         terminated.set(true)
+        finishQueue()
         captureExecutor.shutdown()
         cameraExecutor.shutdown()
         queueProcessingExecutor.shutdown()
         queueProcessingExecutor.awaitTermination(1000, TimeUnit.MILLISECONDS)
         serviceExecutor.shutdown()
         serviceExecutor.awaitTermination(5000, TimeUnit.MILLISECONDS)
+    }
+
+    private fun finishQueue() {
+        // TODO: Extract whole queue to an independent service
+        while (!requestQueue.isEmpty()) {
+            Thread.sleep(5)
+        }
     }
 
     init {
