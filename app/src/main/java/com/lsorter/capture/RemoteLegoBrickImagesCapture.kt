@@ -19,7 +19,6 @@ import kotlin.math.log
 class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
     LegoBrickDatasetCapture {
 
-    private var serviceExecutor: ExecutorService
     private var queueProcessingExecutor: ExecutorService
     private var captureExecutor: ExecutorService
     private val cameraExecutor: ExecutorService
@@ -102,8 +101,6 @@ class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
         cameraExecutor.shutdown()
         queueProcessingExecutor.shutdown()
         queueProcessingExecutor.awaitTermination(1000, TimeUnit.MILLISECONDS)
-        serviceExecutor.shutdown()
-        serviceExecutor.awaitTermination(5000, TimeUnit.MILLISECONDS)
     }
 
     private fun finishQueue() {
@@ -118,11 +115,9 @@ class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
         this.cameraExecutor = Executors.newSingleThreadExecutor()
         this.captureExecutor = Executors.newSingleThreadExecutor()
         this.queueProcessingExecutor = Executors.newFixedThreadPool(1)
-        this.serviceExecutor = Executors.newFixedThreadPool(1)
         this.requestQueue = ConcurrentLinkedQueue()
         this.legoBrickService = LegoBrickGrpc.newFutureStub(connectionChannel)
             .withWaitForReady()
-            .withExecutor(serviceExecutor)
         this.canProcessNext = AtomicBoolean(true)
 
         startQueueProcessing()
