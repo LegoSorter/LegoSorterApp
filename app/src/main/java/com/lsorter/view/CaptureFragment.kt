@@ -65,6 +65,17 @@ class CaptureFragment : Fragment() {
         this.legoBrickImagesCapture.setOnImageCapturedListener {
             activity?.runOnUiThread {
                 binding.captureButton.isClickable = true
+
+                val makeText = Toast.makeText(
+                    this.requireContext(),
+                    "Photo captured",
+                    Toast.LENGTH_SHORT
+                )
+                GlobalScope.launch {
+                    makeText.show()
+                    delay(500)
+                    makeText.cancel()
+                }
             }
         }
 
