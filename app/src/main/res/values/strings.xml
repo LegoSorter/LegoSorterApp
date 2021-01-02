@@ -7,4 +7,6 @@
     <string name="capture_automatic_mode_switch">Enable auto capture mode</string>
     <string name="capturing_interval_label">Set the capturing interval</string>
     <string name="provide_lego_label_hint">provide a lego label</string>
+    <string name="preference_file_key">user_shared_preferences</string>
+    <string name="saved_server_address_key">user_server_address</string>
 </resources>
