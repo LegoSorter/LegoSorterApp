@@ -11,7 +11,6 @@ import com.lsorter.connection.ConnectionManager
 import com.lsorter.detection.detectors.LegoBrickDetector
 import com.lsorter.detection.detectors.LegoBrickGrpc
 import com.lsorter.detection.detectors.LegoBrickProto
-import java.util.concurrent.TimeUnit
 
 class RemoteLegoBrickDetector(connectionManager: ConnectionManager) : LegoBrickDetector {
 
@@ -20,7 +19,7 @@ class RemoteLegoBrickDetector(connectionManager: ConnectionManager) : LegoBrickD
         LegoBrickGrpc.newBlockingStub(channel)
 
     @SuppressLint("RestrictedApi")
-    override fun detectBricks(image: ImageProxy): Task<List<LegoBrickDetector.DetectedLegoBrick>> {
+    override fun detectBricks(image: ImageProxy): List<LegoBrickDetector.DetectedLegoBrick> {
         val request = LegoBrickProto.Image.newBuilder()
             .setImage(
                 ByteString.copyFrom(
@@ -30,17 +29,16 @@ class RemoteLegoBrickDetector(connectionManager: ConnectionManager) : LegoBrickD
             .setRotation(image.imageInfo.rotationDegrees)
             .build()
 
-        return Tasks.call {
-            val boxes = legoBrickService.detectBricks(request)
-            val detectedBricks: List<LegoBrickProto.BoundingBoxOrBuilder> =
-                boxes.packetOrBuilderList
+        val boxes = legoBrickService.detectBricks(request)
+        val detectedBricks: List<LegoBrickProto.BoundingBoxOrBuilder> =
+            boxes.packetOrBuilderList
 
-            detectedBricks.map {
-                LegoBrickDetector.DetectedLegoBrick(
-                    Rect(it.xmin, it.ymax, it.xmax, it.ymin),
-                    LegoBrickDetector.Label(it.score, it.label, 0)
-                )
-            }
+        return detectedBricks.map {
+            LegoBrickDetector.DetectedLegoBrick(
+                Rect(it.xmin, it.ymax, it.xmax, it.ymin),
+                LegoBrickDetector.Label(it.score, it.label, 0)
+            )
+
         }
     }
 

@@ -6,7 +6,7 @@ import com.google.android.gms.tasks.Task
 
 interface LegoBrickDetector {
 
-    fun detectBricks(image: ImageProxy): Task<List<DetectedLegoBrick>>
+    fun detectBricks(image: ImageProxy): List<DetectedLegoBrick>
 
     fun onStop()
 

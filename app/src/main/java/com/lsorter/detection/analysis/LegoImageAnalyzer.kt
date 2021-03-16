@@ -1,17 +1,11 @@
 package com.lsorter.detection.analysis
 
-import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
 import com.lsorter.detection.detectors.LegoBrickDetector
 import com.lsorter.detection.detectors.LegoBrickDetectorsFactory
 import com.lsorter.detection.layer.GraphicOverlay
 import com.lsorter.detection.layer.LegoGraphic
-import java.lang.Exception
-import java.lang.RuntimeException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -39,10 +33,10 @@ class LegoImageAnalyzer(private val graphicOverlay: GraphicOverlay) : ImageAnaly
             initialized = true
         }
 
-        detector.detectBricks(image)
-            .addOnSuccessListener(executor, OnSuccessListener { drawDetectedBricks(it) })
-            .addOnFailureListener(executor, OnFailureListener { onFailure(it) })
-            .addOnCompleteListener(executor, OnCompleteListener { image.close() })
+        detector.detectBricks(image).apply {
+            image.close()
+            drawDetectedBricks(this)
+        }
     }
 
     private fun drawDetectedBricks(bricks: List<LegoBrickDetector.DetectedLegoBrick>) {
@@ -57,10 +51,5 @@ class LegoImageAnalyzer(private val graphicOverlay: GraphicOverlay) : ImageAnaly
 
             graphicOverlay.postInvalidate()
         }
-    }
-
-    private fun onFailure(e: Exception) {
-        Log.e(LegoImageAnalyzer::class.java.name, "Exception during detecting bricks", e)
-        throw RuntimeException(e)
     }
 }

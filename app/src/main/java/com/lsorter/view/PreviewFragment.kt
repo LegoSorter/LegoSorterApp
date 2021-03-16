@@ -1,30 +1,29 @@
 package com.lsorter.view
 
 import android.annotation.SuppressLint
+import android.hardware.camera2.CaptureRequest
 import android.os.Bundle
-import android.util.Size
+import android.util.Range
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
-import androidx.camera.core.ImageCapture.FLASH_MODE_ON
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
-import com.lsorter.capture.LegoBrickDatasetCapture
-import com.lsorter.capture.RemoteLegoBrickImagesCapture
 import com.lsorter.databinding.FragmentPreviewBinding
 import com.lsorter.detection.analysis.LegoImageAnalyzer
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 
 class PreviewFragment : Fragment() {
+    private val analysisExecutor: Executor = Executors.newFixedThreadPool(4)
     private lateinit var binding: FragmentPreviewBinding
     private lateinit var viewModel: PreviewViewModel
 
@@ -96,11 +95,19 @@ class PreviewFragment : Fragment() {
         val cameraProvider = cameraProvider!!
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
-        val analysisUseCase = ImageAnalysis.Builder()
+        val builder = ImageAnalysis.Builder()
+        val extender = Camera2Interop.Extender(builder)
+        extender.setCaptureRequestOption(
+            CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
+            Range(10, 10)
+        )
+
+        val analysisUseCase = builder
+            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
             .build()
             .also {
                 it.setAnalyzer(
-                    ContextCompat.getMainExecutor(this.requireContext()),
+                    analysisExecutor,
                     imageAnalyzer
                 )
             }
