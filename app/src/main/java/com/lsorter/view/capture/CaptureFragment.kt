@@ -1,4 +1,4 @@
-package com.lsorter.view
+package com.lsorter.view.capture
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.lsorter.capture.LegoBrickDatasetCapture
 import com.lsorter.capture.RemoteLegoBrickImagesCapture
 import com.lsorter.databinding.FragmentCaptureBinding
+import com.lsorter.view.CaptureFragmentArgs
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -135,7 +136,6 @@ class CaptureFragment : Fragment() {
     override fun onDestroy() {
         legoBrickImagesCapture.stop()
         cameraProvider.unbindAll()
-        binding.graphicOverlay.clear()
         binding.viewFinder.removeAllViews()
         super.onDestroy()
     }

@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:layout_margin="16dp"
     android:orientation="vertical"
-    tools:context=".view.CaptureDialogFragment">
+    tools:context=".view.capture.CaptureDialogFragment">
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/lego_class_label"

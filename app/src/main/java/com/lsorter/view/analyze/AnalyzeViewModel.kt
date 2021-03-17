@@ -1,4 +1,4 @@
-package com.lsorter.view
+package com.lsorter.view.analyze
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

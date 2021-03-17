@@ -18,7 +18,36 @@ class StartFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val binding = FragmentStartBinding.inflate(inflater, container, false)
+        setupNavigation(binding)
 
+        val savedAddr = activity?.getSharedPreferences(
+            getString(R.string.preference_file_key), Context.MODE_PRIVATE
+        )?.getString(
+            getString(R.string.saved_server_address_key),
+            "ip:port"
+        ) ?: "ip:port"
+        binding.serverAddressBox.setText(savedAddr)
+        binding.serverAddressBox.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                val sharedPref = activity?.getSharedPreferences(
+                    getString(R.string.preference_file_key), Context.MODE_PRIVATE
+                )
+                if (sharedPref != null) {
+                    with(sharedPref.edit()) {
+                        putString(
+                            getString(R.string.saved_server_address_key),
+                            binding.serverAddressBox.text.toString()
+                        )
+                        apply()
+                    }
+                }
+            }
+        }
+
+        return binding.root
+    }
+
+    private fun setupNavigation(binding: FragmentStartBinding) {
         binding.createDatasetButton.setOnClickListener(
             Navigation.createNavigateOnClickListener(
                 StartFragmentDirections.actionStartFragmentToCaptureDialogFragment()
@@ -31,24 +60,10 @@ class StartFragment : Fragment() {
             )
         )
 
-        val savedAddr = activity?.getSharedPreferences(
-            getString(R.string.preference_file_key), Context.MODE_PRIVATE)?.getString(
-            getString(R.string.saved_server_address_key),
-            "ip:port") ?: "ip:port"
-        binding.serverAddressBox.setText(savedAddr)
-        binding.serverAddressBox.setOnFocusChangeListener {_, hasFocus ->
-            if (!hasFocus) {
-                val sharedPref = activity?.getSharedPreferences(
-                    getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-                if (sharedPref != null) {
-                    with (sharedPref.edit()) {
-                        putString(getString(R.string.saved_server_address_key), binding.serverAddressBox.text.toString())
-                        apply()
-                    }
-                }
-            }
-        }
-
-        return binding.root
+        binding.sortButton.setOnClickListener(
+            Navigation.createNavigateOnClickListener(
+                StartFragmentDirections.actionStartFragmentToSortFragment()
+            )
+        )
     }
 }

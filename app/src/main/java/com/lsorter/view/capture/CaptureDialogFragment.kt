@@ -1,4 +1,4 @@
-package com.lsorter.view
+package com.lsorter.view.capture
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -12,6 +12,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.fragment.app.DialogFragment
 import androidx.navigation.fragment.findNavController
 import com.lsorter.databinding.FragmentCaptureDialogBinding
+import com.lsorter.view.CaptureDialogFragmentDirections
 
 
 class CaptureDialogFragment : DialogFragment() {

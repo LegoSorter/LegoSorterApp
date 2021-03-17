@@ -1,4 +1,4 @@
-package com.lsorter.view
+package com.lsorter.view.analyze
 
 import android.annotation.SuppressLint
 import android.hardware.camera2.CaptureRequest

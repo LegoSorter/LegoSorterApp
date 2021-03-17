@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.CaptureFragment">
+    tools:context=".view.capture.CaptureFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -35,11 +35,6 @@
             android:id="@+id/viewFinder"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
-            <com.lsorter.detection.layer.GraphicOverlay
-                android:id="@+id/graphic_overlay"
-                android:layout_width="match_parent"
-                android:layout_height="720dp" />
 
         </androidx.camera.view.PreviewView>
 

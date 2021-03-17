@@ -1,7 +1,7 @@
-package com.lsorter.view
+package com.lsorter.view.sort
 
 import androidx.lifecycle.ViewModel
 
-class CaptureViewModel : ViewModel() {
+class SortViewModel : ViewModel() {
     // TODO: Implement the ViewModel
 }

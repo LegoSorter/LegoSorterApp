@@ -20,15 +20,18 @@
         <action
             android:id="@+id/action_startFragment_to_captureDialogFragment"
             app:destination="@id/captureDialogFragment" />
+        <action
+            android:id="@+id/action_startFragment_to_sortFragment"
+            app:destination="@id/sortFragment" />
     </fragment>
     <fragment
         android:id="@+id/analyzeFragment"
-        android:name="com.lsorter.view.AnalyzeFragment"
+        android:name="com.lsorter.view.analyze.AnalyzeFragment"
         android:label="fragment_analyze"
         tools:layout="@layout/fragment_analyze" />
     <dialog
         android:id="@+id/captureDialogFragment"
-        android:name="com.lsorter.view.CaptureDialogFragment"
+        android:name="com.lsorter.view.capture.CaptureDialogFragment"
         android:label="fragment_capture_dialog"
         tools:layout="@layout/fragment_capture_dialog" >
         <action
@@ -46,7 +49,7 @@
     </dialog>
     <fragment
         android:id="@+id/captureFragment"
-        android:name="com.lsorter.view.CaptureFragment"
+        android:name="com.lsorter.view.capture.CaptureFragment"
         android:label="capture_fragment"
         tools:layout="@layout/fragment_capture" >
         <argument
@@ -62,4 +65,9 @@
             app:argType="boolean"
             android:defaultValue="true" />
     </fragment>
+    <fragment
+        android:id="@+id/sortFragment"
+        android:name="com.lsorter.view.sort.SortFragment"
+        android:label="fragment_sort"
+        tools:layout="@layout/fragment_sort" />
 </navigation>
