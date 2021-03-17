@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
 
-    tools:context=".view.PreviewFragment">
+    tools:context=".view.AnalyzeFragment">
 
     <data>
 
         <variable
-            name="previewViewModel"
-            type="com.lsorter.view.PreviewViewModel" />
+            name="analyzeViewModel"
+            type="com.lsorter.view.AnalyzeViewModel" />
     </data>
 
     <LinearLayout
@@ -37,31 +37,14 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="horizontal">
-
-
-            <ToggleButton
-                android:id="@+id/cap_or_analyse"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:checked="true"
-                android:textOff="ANALYZE"
-                android:textOn="CAPTURE" />
-
             <Button
                 android:id="@+id/startstop"
                 android:layout_width="fill_parent"
-                android:onClick="@{() -> previewViewModel.onActionButtonClicked()}"
+                android:onClick="@{() -> analyzeViewModel.onActionButtonClicked()}"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="START" />
+                android:text="@string/start_text" />
 
-        </LinearLayout>
     </LinearLayout>
 
 </layout>

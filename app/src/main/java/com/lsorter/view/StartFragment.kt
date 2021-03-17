@@ -17,13 +17,20 @@ class StartFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val binding = FragmentStartBinding.inflate(inflater, container, false);
+        val binding = FragmentStartBinding.inflate(inflater, container, false)
 
-        binding.startButton.setOnClickListener(
+        binding.createDatasetButton.setOnClickListener(
             Navigation.createNavigateOnClickListener(
-                StartFragmentDirections.actionStartFragmentToPreviewFragment()
+                StartFragmentDirections.actionStartFragmentToCaptureDialogFragment()
             )
         )
+
+        binding.analyzeButton.setOnClickListener(
+            Navigation.createNavigateOnClickListener(
+                StartFragmentDirections.actionStartFragmentToAnalyzeFragment()
+            )
+        )
+
         val savedAddr = activity?.getSharedPreferences(
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)?.getString(
             getString(R.string.saved_server_address_key),

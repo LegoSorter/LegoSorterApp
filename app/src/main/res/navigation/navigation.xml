@@ -11,22 +11,21 @@
         android:label="fragment_start"
         tools:layout="@layout/fragment_start" >
         <action
-            android:id="@+id/action_startFragment_to_previewFragment"
-            app:destination="@id/previewFragment"
+            android:id="@+id/action_startFragment_to_analyzeFragment"
+            app:destination="@id/analyzeFragment"
             app:enterAnim="@android:anim/slide_in_left"
             app:exitAnim="@android:anim/slide_out_right"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
-    </fragment>
-    <fragment
-        android:id="@+id/previewFragment"
-        android:name="com.lsorter.view.PreviewFragment"
-        android:label="fragment_preview"
-        tools:layout="@layout/fragment_preview" >
         <action
-            android:id="@+id/action_previewFragment_to_captureDialogFragment"
+            android:id="@+id/action_startFragment_to_captureDialogFragment"
             app:destination="@id/captureDialogFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/analyzeFragment"
+        android:name="com.lsorter.view.AnalyzeFragment"
+        android:label="fragment_analyze"
+        tools:layout="@layout/fragment_analyze" />
     <dialog
         android:id="@+id/captureDialogFragment"
         android:name="com.lsorter.view.CaptureDialogFragment"
@@ -49,7 +48,7 @@
         android:id="@+id/captureFragment"
         android:name="com.lsorter.view.CaptureFragment"
         android:label="capture_fragment"
-        tools:layout="@layout/capture_fragment" >
+        tools:layout="@layout/fragment_capture" >
         <argument
             android:name="legoClassLabel"
             app:argType="string"

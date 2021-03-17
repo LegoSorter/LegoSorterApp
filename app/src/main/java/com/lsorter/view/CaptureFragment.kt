@@ -15,7 +15,7 @@ import androidx.navigation.fragment.navArgs
 import com.google.common.util.concurrent.ListenableFuture
 import com.lsorter.capture.LegoBrickDatasetCapture
 import com.lsorter.capture.RemoteLegoBrickImagesCapture
-import com.lsorter.databinding.CaptureFragmentBinding
+import com.lsorter.databinding.FragmentCaptureBinding
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 class CaptureFragment : Fragment() {
 
     private lateinit var cameraProvider: ProcessCameraProvider
-    private lateinit var binding: CaptureFragmentBinding
+    private lateinit var binding: FragmentCaptureBinding
     private lateinit var legoBrickImagesCapture: LegoBrickDatasetCapture
 
     private val args: CaptureFragmentArgs by navArgs()
@@ -32,7 +32,7 @@ class CaptureFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = CaptureFragmentBinding.inflate(layoutInflater, container, false)
+        binding = FragmentCaptureBinding.inflate(layoutInflater, container, false)
 
         return binding.root
     }
