@@ -2,15 +2,13 @@ package com.lsorter.detection.analysis
 
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
+import com.lsorter.detection.common.DetectedLegoBrick
 import com.lsorter.detection.detectors.LegoBrickDetector
 import com.lsorter.detection.detectors.LegoBrickDetectorsFactory
 import com.lsorter.detection.layer.GraphicOverlay
 import com.lsorter.detection.layer.LegoGraphic
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
 class LegoImageAnalyzer(private val graphicOverlay: GraphicOverlay) : ImageAnalysis.Analyzer {
-    private val executor: ExecutorService = Executors.newSingleThreadExecutor()
     private val detector: LegoBrickDetector = LegoBrickDetectorsFactory.getLegoBrickDetector()
 
     private var initialized: Boolean = false
@@ -39,7 +37,7 @@ class LegoImageAnalyzer(private val graphicOverlay: GraphicOverlay) : ImageAnaly
         }
     }
 
-    private fun drawDetectedBricks(bricks: List<LegoBrickDetector.DetectedLegoBrick>) {
+    private fun drawDetectedBricks(bricks: List<DetectedLegoBrick>) {
         synchronized(lock) {
             if (isShutdown) return
 

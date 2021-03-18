@@ -4,10 +4,10 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
-import com.lsorter.detection.detectors.LegoBrickDetector
+import com.lsorter.detection.common.DetectedLegoBrick
 
 class LegoGraphic constructor(
-    overlay: GraphicOverlay, private val legoBrick: LegoBrickDetector.DetectedLegoBrick
+    overlay: GraphicOverlay, private val legoBrick: DetectedLegoBrick
 ) : GraphicOverlay.Graphic(overlay) {
 
     private val boxPaint = Paint()

@@ -16,7 +16,6 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.lsorter.capture.LegoBrickDatasetCapture
 import com.lsorter.capture.RemoteLegoBrickImagesCapture
 import com.lsorter.databinding.FragmentCaptureBinding
-import com.lsorter.view.CaptureFragmentArgs
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
