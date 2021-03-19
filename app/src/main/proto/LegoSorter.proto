@@ -1,0 +1,17 @@
+syntax = "proto3";
+import "Messages.proto";
+
+package sorter;
+
+option java_package = "com.lsorter.sorter";
+option java_outer_classname = "LegoSorterProto";
+
+message SorterConfiguration {
+
+}
+
+service LegoSorter {
+  rpc processNextImage(common.ImageRequest) returns (common.ListOfBoundingBoxes);
+  rpc getConfiguration(common.Empty) returns (SorterConfiguration);
+  rpc updateConfiguration(SorterConfiguration) returns (SorterConfiguration);
+}

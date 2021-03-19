@@ -18,7 +18,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.lsorter.R
 import com.lsorter.databinding.FragmentAnalyzeBinding
-import com.lsorter.detection.analysis.LegoImageAnalyzer
+import com.lsorter.analyze.LegoImageAnalyzer
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
@@ -65,7 +65,8 @@ class AnalyzeFragment : Fragment() {
 
         cameraProviderFuture.addListener(Runnable {
             this.cameraProvider = cameraProviderFuture.get()
-            this.legoImageAnalyzer = LegoImageAnalyzer(binding.graphicOverlay)
+            this.legoImageAnalyzer =
+                LegoImageAnalyzer(binding.graphicOverlay)
             val cameraProvider = cameraProvider!!
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             val preview = Preview.Builder().build()
@@ -77,7 +78,8 @@ class AnalyzeFragment : Fragment() {
     }
 
     private fun analyzeImages() {
-        this.legoImageAnalyzer = LegoImageAnalyzer(binding.graphicOverlay)
+        this.legoImageAnalyzer =
+            LegoImageAnalyzer(binding.graphicOverlay)
         val imageAnalyzer = legoImageAnalyzer!!
         val cameraProvider = cameraProvider!!
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA

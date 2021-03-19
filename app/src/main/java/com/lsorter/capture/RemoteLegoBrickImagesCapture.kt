@@ -8,13 +8,9 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.internal.utils.ImageUtil
 import com.google.protobuf.ByteString
 import com.lsorter.connection.ConnectionManager
-import com.lsorter.detection.detectors.LegoBrickGrpc
-import com.lsorter.detection.detectors.LegoBrickProto
 import io.grpc.ManagedChannel
-import kotlinx.coroutines.*
 import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.math.log
 
 class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
     LegoBrickDatasetCapture {
@@ -25,15 +21,15 @@ class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
     private val connectionManager: ConnectionManager = ConnectionManager()
     private val connectionChannel: ManagedChannel
     private val imageCaptureLock = Any()
-    private var requestQueue: ConcurrentLinkedQueue<LegoBrickProto.ImageStore>
+    private var requestQueue: ConcurrentLinkedQueue<LegoCaptureProto.ImageStore>
     private var onImageCapturedListener: () -> Unit = { }
-    private val legoBrickService: LegoBrickGrpc.LegoBrickFutureStub
+    private val legoBrickService: LegoCaptureGrpc.LegoCaptureFutureStub
     private val canProcessNext: AtomicBoolean
     private var terminated: AtomicBoolean = AtomicBoolean(false)
 
     @SuppressLint("RestrictedApi", "CheckResult")
     fun sendLegoImageWithLabel(image: ImageProxy, label: String) {
-        val request = LegoBrickProto.ImageStore.newBuilder()
+        val request = LegoCaptureProto.ImageStore.newBuilder()
             .setImage(
                 ByteString.copyFrom(
                     ImageUtil.imageToJpegByteArray(image)
@@ -116,7 +112,7 @@ class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
         this.captureExecutor = Executors.newSingleThreadExecutor()
         this.queueProcessingExecutor = Executors.newFixedThreadPool(1)
         this.requestQueue = ConcurrentLinkedQueue()
-        this.legoBrickService = LegoBrickGrpc.newFutureStub(connectionChannel)
+        this.legoBrickService = LegoCaptureGrpc.newFutureStub(connectionChannel)
             .withWaitForReady()
         this.canProcessNext = AtomicBoolean(true)
 
