@@ -1,13 +1,13 @@
-package com.lsorter.detection.layer
+package com.lsorter.analyze.layer
 
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
-import com.lsorter.detection.common.DetectedLegoBrick
+import com.lsorter.analyze.common.RecognizedLegoBrick
 
 class LegoGraphic constructor(
-    overlay: GraphicOverlay, private val legoBrick: DetectedLegoBrick
+    overlay: GraphicOverlay, private val legoBrick: RecognizedLegoBrick
 ) : GraphicOverlay.Graphic(overlay) {
 
     private val boxPaint = Paint()

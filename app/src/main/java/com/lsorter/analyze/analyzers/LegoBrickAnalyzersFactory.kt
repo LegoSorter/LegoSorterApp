@@ -1,9 +1,9 @@
-package com.lsorter.detection.detectors
+package com.lsorter.analyze.analyzers
 
 import com.lsorter.connection.ConnectionManager
-import com.lsorter.detection.detectors.remote.RemoteLegoBrickDetector
+import com.lsorter.analyze.analyzers.remote.RemoteLegoBrickAnalyzer
 
-class LegoBrickDetectorsFactory {
+class LegoBrickAnalyzersFactory {
     companion object {
         /**
          * Whether to run an object recognition in this android app or to send it to an external server.
@@ -13,11 +13,11 @@ class LegoBrickDetectorsFactory {
             return false
         }
 
-        fun getLegoBrickDetector(): LegoBrickDetector {
+        fun getLegoBrickAnalyzer(): LegoBrickAnalyzer {
             return if (detectLocally()) {
-                OnPremiseLegoBrickDetector()
+                OnPremiseLegoBrickAnalyzer()
             } else {
-                RemoteLegoBrickDetector(ConnectionManager())
+                RemoteLegoBrickAnalyzer(ConnectionManager())
             }
         }
     }

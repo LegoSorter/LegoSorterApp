@@ -1,25 +1,30 @@
-package com.lsorter.detection.analysis
+package com.lsorter.analyze
 
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import com.lsorter.detection.common.DetectedLegoBrick
-import com.lsorter.detection.detectors.LegoBrickDetector
-import com.lsorter.detection.detectors.LegoBrickDetectorsFactory
-import com.lsorter.detection.layer.GraphicOverlay
-import com.lsorter.detection.layer.LegoGraphic
+import com.lsorter.analyze.common.RecognizedLegoBrick
+import com.lsorter.analyze.analyzers.LegoBrickAnalyzer
+import com.lsorter.analyze.analyzers.LegoBrickAnalyzersFactory
+import com.lsorter.analyze.layer.GraphicOverlay
+import com.lsorter.analyze.layer.LegoGraphic
 
 class LegoImageAnalyzer(private val graphicOverlay: GraphicOverlay) : ImageAnalysis.Analyzer {
-    private val detector: LegoBrickDetector = LegoBrickDetectorsFactory.getLegoBrickDetector()
+    private val analyzer: LegoBrickAnalyzer = LegoBrickAnalyzersFactory.getLegoBrickAnalyzer()
 
     private var initialized: Boolean = false
     private var isShutdown: Boolean = false
+    private var analysisMode: AnalysisMode = AnalysisMode.DETECT_AND_CLASSIFY
     private val lock = Any()
 
     fun shutdown() {
         synchronized(lock) {
-            detector.onStop()
+            analyzer.onStop()
             isShutdown = true
         }
+    }
+
+    fun setAnalysisMode(mode: AnalysisMode) {
+        analysisMode = mode
     }
 
     override fun analyze(image: ImageProxy) {
@@ -31,13 +36,17 @@ class LegoImageAnalyzer(private val graphicOverlay: GraphicOverlay) : ImageAnaly
             initialized = true
         }
 
-        detector.detectBricks(image).apply {
+        if (analysisMode == AnalysisMode.DETECT_ONLY) {
+            analyzer.detectBricks(image)
+        } else {
+            analyzer.detectAndClassify(image)
+        }.apply {
             image.close()
-            drawDetectedBricks(this)
+            drawRecognizedBricks(this)
         }
     }
 
-    private fun drawDetectedBricks(bricks: List<DetectedLegoBrick>) {
+    private fun drawRecognizedBricks(bricks: List<RecognizedLegoBrick>) {
         synchronized(lock) {
             if (isShutdown) return
 
@@ -49,5 +58,10 @@ class LegoImageAnalyzer(private val graphicOverlay: GraphicOverlay) : ImageAnaly
 
             graphicOverlay.postInvalidate()
         }
+    }
+
+    enum class AnalysisMode {
+        DETECT_ONLY,
+        DETECT_AND_CLASSIFY
     }
 }

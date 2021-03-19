@@ -28,7 +28,7 @@
 
             </androidx.camera.view.PreviewView>
 
-            <com.lsorter.detection.layer.GraphicOverlay
+            <com.lsorter.analyze.layer.GraphicOverlay
                 android:id="@+id/graphic_overlay"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
