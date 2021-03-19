@@ -8,18 +8,18 @@ import com.google.protobuf.ByteString
 import com.lsorter.connection.ConnectionManager
 import com.lsorter.detection.common.DetectedLegoBrick
 import com.lsorter.detection.detectors.LegoBrickDetector
-import com.lsorter.detection.detectors.LegoBrickGrpc
-import com.lsorter.detection.detectors.LegoBrickProto
+import com.lsorter.analysis.LegoAnalysisGrpc
+import com.lsorter.common.CommonMessagesProto
 
 class RemoteLegoBrickDetector(connectionManager: ConnectionManager) : LegoBrickDetector {
 
     private val channel = connectionManager.getConnectionChannel()
-    private val legoBrickService: LegoBrickGrpc.LegoBrickBlockingStub =
-        LegoBrickGrpc.newBlockingStub(channel)
+    private val legoBrickService: LegoAnalysisGrpc.LegoAnalysisBlockingStub =
+        LegoAnalysisGrpc.newBlockingStub(channel)
 
     @SuppressLint("RestrictedApi")
     override fun detectBricks(image: ImageProxy): List<DetectedLegoBrick> {
-        val request = LegoBrickProto.Image.newBuilder()
+        val request = CommonMessagesProto.ImageRequest.newBuilder()
             .setImage(
                 ByteString.copyFrom(
                     ImageUtil.imageToJpegByteArray(image)
@@ -29,7 +29,7 @@ class RemoteLegoBrickDetector(connectionManager: ConnectionManager) : LegoBrickD
             .build()
 
         val boxes = legoBrickService.detectBricks(request)
-        val detectedBricks: List<LegoBrickProto.BoundingBoxOrBuilder> =
+        val detectedBricks: List<CommonMessagesProto.BoundingBoxOrBuilder> =
             boxes.packetOrBuilderList
 
         return detectedBricks.map {
