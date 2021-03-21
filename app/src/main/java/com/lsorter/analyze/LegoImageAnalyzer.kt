@@ -29,10 +29,11 @@ class LegoImageAnalyzer(private val graphicOverlay: GraphicOverlay) : ImageAnaly
 
     override fun analyze(image: ImageProxy) {
         if (!initialized) {
-            if (image.imageInfo.rotationDegrees == 90)
-                graphicOverlay.setImageSourceInfo(image.height, image.width)
-            else
-                graphicOverlay.setImageSourceInfo(image.width, image.height)
+            graphicOverlay.setImageSourceInfo(
+                image.width,
+                image.height,
+                image.imageInfo.rotationDegrees
+            )
             initialized = true
         }
 

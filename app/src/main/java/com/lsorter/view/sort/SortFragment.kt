@@ -98,21 +98,14 @@ class SortFragment : Fragment() {
                         it.setAnalyzer(
                             cameraExecutor,
                             ImageAnalysis.Analyzer { image ->
-                                if (isSortingStarted.get()) {
-                                    if (image.imageInfo.rotationDegrees == 90)
-                                        binding.graphicOverlay.setImageSourceInfo(
-                                            image.height,
-                                            image.width
-                                        )
-                                    else
-                                        binding.graphicOverlay.setImageSourceInfo(
-                                            image.width,
-                                            image.height
-                                        )
+                                binding.graphicOverlay.setImageSourceInfo(
+                                    image.width,
+                                    image.height,
+                                    image.imageInfo.rotationDegrees
+                                )
 
-                                    sorterService.processImage(image).apply {
-                                        drawBoundingBoxes(this)
-                                    }
+                                sorterService.processImage(image).apply {
+                                    drawBoundingBoxes(this)
                                 }
                                 image.close()
                             })

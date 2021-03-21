@@ -122,18 +122,24 @@ class GraphicOverlay(context: Context?, attrs: AttributeSet?) : View(context, at
      * Sets the source information of the image being processed by detectors, including size and
      * whether it is flipped, which informs how to transform image coordinates later.
      *
-     * @param imageWidth  the width of the image sent to ML Kit detectors
-     * @param imageHeight the height of the image sent to ML Kit detectors
-     * front camera.
+     * @param imageWidth  the width of the image
+     * @param imageHeight the height of the image
+     * @param rotation rotation of the source image
      */
-    fun setImageSourceInfo(imageWidth: Int, imageHeight: Int) {
+    fun setImageSourceInfo(imageWidth: Int, imageHeight: Int, rotation: Int) {
         Preconditions.checkState(imageWidth > 0, "image width must be positive")
         Preconditions.checkState(imageHeight > 0, "image height must be positive")
 
         synchronized(lock) {
-            this.imageWidth = imageWidth
-            this.imageHeight = imageHeight
+            if (rotation == 90) {
+                this.imageWidth = imageHeight
+                this.imageHeight = imageWidth
+            } else {
+                this.imageWidth = imageWidth
+                this.imageHeight = imageHeight
+            }
             needUpdateTransformation = true
+
         }
 
         postInvalidate()
