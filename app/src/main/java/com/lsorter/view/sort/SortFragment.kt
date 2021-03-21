@@ -6,10 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageProxy
-import androidx.camera.core.Preview
+import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
@@ -21,18 +18,17 @@ import com.lsorter.sort.DefaultLegoBrickSorterService
 import com.lsorter.sort.LegoBrickSorterService
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
 
 class SortFragment : Fragment() {
-    private val executor: ExecutorService = Executors.newSingleThreadExecutor()
-    private val cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 
+    private var cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
     private lateinit var viewModel: SortViewModel
     private lateinit var binding: FragmentSortBinding
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var sorterService: LegoBrickSorterService
-    private lateinit var imageCapture: ImageCapture
 
-    private var isSortingStarted = false
+    private var isSortingStarted: AtomicBoolean = AtomicBoolean(false)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -55,10 +51,14 @@ class SortFragment : Fragment() {
         viewModel.eventStartStopButtonClicked.observe(
             viewLifecycleOwner,
             Observer {
-                if (isSortingStarted) {
+                if (isSortingStarted.get()) {
+                    isSortingStarted.set(false)
                     stopSorting()
+                    binding.startstop.text = "Start"
                 } else {
                     startSorting()
+                    binding.startstop.text = "Stop"
+                    isSortingStarted.set(true)
                 }
             }
         )
@@ -67,71 +67,82 @@ class SortFragment : Fragment() {
     }
 
     private fun startSorting() {
-        executor.submit {
-            imageCapture.takePicture(
-                cameraExecutor,
-                object : ImageCapture.OnImageCapturedCallback() {
-                    override fun onCaptureSuccess(image: ImageProxy) {
-                        prepareOverlay(image)
-
-                        val recognizedBricks: List<RecognizedLegoBrick> =
-                            sorterService.processImage(image)
-                        drawBoundingBoxes(recognizedBricks)
-                        super.onCaptureSuccess(image)
-                    }
-
-                    private fun prepareOverlay(image: ImageProxy) {
-                        if (image.imageInfo.rotationDegrees == 90)
-                            binding.graphicOverlay.setImageSourceInfo(image.height, image.width)
-                        else
-                            binding.graphicOverlay.setImageSourceInfo(image.width, image.height)
-                    }
-                })
-        }
-    }
-
-    private fun drawBoundingBoxes(recognizedBricks: List<RecognizedLegoBrick>) {
-        binding.graphicOverlay.clear()
-
-        for (brick in recognizedBricks) {
-            binding.graphicOverlay.add(LegoGraphic(binding.graphicOverlay, brick))
-        }
-
-        binding.graphicOverlay.postInvalidate()
+        setupCamera(startAnalysis = true)
     }
 
     private fun stopSorting() {
+        cameraProvider.unbindAll()
         binding.graphicOverlay.let {
             it.clear()
             it.postInvalidate()
         }
-        executor.shutdown()
+        setupCamera(startAnalysis = false)
     }
 
-    private fun setupCamera(): ListenableFuture<ProcessCameraProvider> {
+    private fun setupCamera(startAnalysis: Boolean = false): ListenableFuture<ProcessCameraProvider> {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this.requireContext())
 
         cameraProviderFuture.addListener(Runnable {
             this.cameraProvider = cameraProviderFuture.get()
+            cameraProvider.unbindAll()
 
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             val preview = Preview.Builder().build()
 
-            imageCapture = ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
-                .setFlashMode(ImageCapture.FLASH_MODE_OFF)
-                .build()
+            if (startAnalysis) {
+                val imageAnalysis = ImageAnalysis.Builder()
+                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+//                    .setTargetResolution(Size(1080, 1920))
+                    .build()
+                    .also {
+                        it.setAnalyzer(
+                            cameraExecutor,
+                            ImageAnalysis.Analyzer { image ->
+                                if (isSortingStarted.get()) {
+                                    if (image.imageInfo.rotationDegrees == 90)
+                                        binding.graphicOverlay.setImageSourceInfo(
+                                            image.height,
+                                            image.width
+                                        )
+                                    else
+                                        binding.graphicOverlay.setImageSourceInfo(
+                                            image.width,
+                                            image.height
+                                        )
 
-            cameraProvider.unbindAll()
-            cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview)
+                                    sorterService.processImage(image).apply {
+                                        drawBoundingBoxes(this)
+                                    }
+                                }
+                                image.close()
+                            })
+                    }
+
+                cameraProvider.bindToLifecycle(this, cameraSelector, imageAnalysis, preview)
+            } else {
+                cameraProvider.bindToLifecycle(this, cameraSelector, preview)
+            }
+
             preview.setSurfaceProvider(binding.viewFinder.surfaceProvider)
         }, ContextCompat.getMainExecutor(this.requireContext()))
 
         return cameraProviderFuture
     }
 
+    private fun drawBoundingBoxes(recognizedBricks: List<RecognizedLegoBrick>) {
+        binding.graphicOverlay.clear()
+
+        if (isSortingStarted.get()) {
+
+            for (brick in recognizedBricks) {
+                binding.graphicOverlay.add(LegoGraphic(binding.graphicOverlay, brick))
+            }
+
+            binding.graphicOverlay.postInvalidate()
+        }
+    }
+
     override fun onDestroy() {
-        cameraProvider.unbindAll()
         stopSorting()
 
         super.onDestroy()
