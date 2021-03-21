@@ -40,8 +40,7 @@ class RemoteLegoBrickAnalyzer(connectionManager: ConnectionManager) : LegoBrickA
                 Rect(it.xmin, it.ymax, it.xmax, it.ymin),
                 RecognizedLegoBrick.Label(
                     it.score,
-                    it.label,
-                    0
+                    it.label
                 )
             )
         }
