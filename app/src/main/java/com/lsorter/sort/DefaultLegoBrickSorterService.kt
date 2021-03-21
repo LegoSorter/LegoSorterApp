@@ -9,6 +9,7 @@ import com.lsorter.analyze.common.RecognizedLegoBrick
 import com.lsorter.common.CommonMessagesProto
 import com.lsorter.connection.ConnectionManager
 import com.lsorter.sorter.LegoSorterGrpc
+import com.lsorter.sorter.LegoSorterProto
 
 class DefaultLegoBrickSorterService : LegoBrickSorterService {
     private val connectionManager: ConnectionManager = ConnectionManager()
@@ -28,7 +29,7 @@ class DefaultLegoBrickSorterService : LegoBrickSorterService {
     }
 
     @SuppressLint("RestrictedApi")
-    override fun sendImage(image: ImageProxy): List<RecognizedLegoBrick> {
+    override fun processImage(image: ImageProxy): List<RecognizedLegoBrick> {
         val imageRequest = CommonMessagesProto.ImageRequest.newBuilder()
             .setImage(
                 ByteString.copyFrom(
@@ -49,17 +50,16 @@ class DefaultLegoBrickSorterService : LegoBrickSorterService {
         TODO("Not yet implemented")
     }
 
-    private fun mapResponse(boxes: CommonMessagesProto.ListOfBoundingBoxes): List<RecognizedLegoBrick> {
-        val detectedBricks: List<CommonMessagesProto.BoundingBoxOrBuilder> =
-            boxes.packetOrBuilderList
+    private fun mapResponse(boxes: LegoSorterProto.ListOfBoundingBoxesWithIndexes): List<RecognizedLegoBrick> {
+        val detectedBricks = boxes.packetOrBuilderList
 
         return detectedBricks.map {
             RecognizedLegoBrick(
-                Rect(it.xmin, it.ymax, it.xmax, it.ymin),
+                Rect(it.bb.xmin, it.bb.ymax, it.bb.xmax, it.bb.ymin),
                 RecognizedLegoBrick.Label(
-                    it.score,
-                    it.label,
-                    0
+                    it.bb.score,
+                    it.bb.label,
+                    it.index
                 )
             )
         }
