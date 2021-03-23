@@ -1,11 +1,18 @@
 package com.lsorter.view.sort
 
+import android.annotation.SuppressLint
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraMetadata
+import android.hardware.camera2.CaptureRequest
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SeekBar
+import androidx.camera.camera2.interop.Camera2CameraInfo
+import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
@@ -16,6 +23,7 @@ import com.lsorter.analyze.layer.LegoGraphic
 import com.lsorter.databinding.FragmentSortBinding
 import com.lsorter.sort.DefaultLegoBrickSorterService
 import com.lsorter.sort.LegoBrickSorterService
+import kotlinx.android.synthetic.main.fragment_start.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
@@ -39,6 +47,26 @@ class SortFragment : Fragment() {
 
         binding.sortViewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
+        binding.focusBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                val progressScaled = progress.toFloat() / (seekBar?.max ?: 100)
+                viewModel.apply {
+                    cameraFocusDistance = calculateFocusDistance(progressScaled)
+                    binding.focusDistanceValue.text = String.format("%.2f", cameraFocusDistance)
+                }
+
+                setupCamera(startAnalysis = false)
+            }
+
+            private fun SortViewModel.calculateFocusDistance(progressScaled: Float) =
+                maximumCameraFocusDistance + (minimumCameraFocusDistance - maximumCameraFocusDistance) * progressScaled
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+        })
 
         return binding.root
     }
@@ -53,9 +81,11 @@ class SortFragment : Fragment() {
             Observer {
                 if (isSortingStarted.get()) {
                     isSortingStarted.set(false)
+                    setVisibilityOfFocusSeeker(View.VISIBLE)
                     stopSorting()
                     binding.startstop.text = "Start"
                 } else {
+                    setVisibilityOfFocusSeeker(View.GONE)
                     startSorting()
                     binding.startstop.text = "Stop"
                     isSortingStarted.set(true)
@@ -64,6 +94,11 @@ class SortFragment : Fragment() {
         )
 
         setupCamera()
+    }
+
+    private fun setVisibilityOfFocusSeeker(visibility: Int) {
+        binding.focusBar.visibility = visibility
+        binding.focusBarLabel.visibility = visibility
     }
 
     private fun startSorting() {
@@ -87,39 +122,71 @@ class SortFragment : Fragment() {
             cameraProvider.unbindAll()
 
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-            val preview = Preview.Builder().build()
+            val preview = Preview.Builder().apply { setFocusDistance(this) }.build()
 
             if (startAnalysis) {
-                val imageAnalysis = ImageAnalysis.Builder()
-                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-//                    .setTargetResolution(Size(1080, 1920))
-                    .build()
-                    .also {
-                        it.setAnalyzer(
-                            cameraExecutor,
-                            ImageAnalysis.Analyzer { image ->
-                                binding.graphicOverlay.setImageSourceInfo(
-                                    image.width,
-                                    image.height,
-                                    image.imageInfo.rotationDegrees
-                                )
-
-                                sorterService.processImage(image).apply {
-                                    drawBoundingBoxes(this)
-                                }
-                                image.close()
-                            })
-                    }
-
+                val imageAnalysis = getImageAnalysis()
                 cameraProvider.bindToLifecycle(this, cameraSelector, imageAnalysis, preview)
             } else {
                 cameraProvider.bindToLifecycle(this, cameraSelector, preview)
+            }.apply {
+                extractLensCharacteristics()
             }
 
             preview.setSurfaceProvider(binding.viewFinder.surfaceProvider)
         }, ContextCompat.getMainExecutor(this.requireContext()))
 
         return cameraProviderFuture
+    }
+
+    @SuppressLint("UnsafeExperimentalUsageError", "RestrictedApi")
+    private fun Camera.extractLensCharacteristics() {
+        Camera2CameraInfo.extractCameraCharacteristics(this.cameraInfo).apply {
+            this@SortFragment.viewModel.minimumCameraFocusDistance =
+                this.get(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE)
+                    ?: 0f
+
+            this@SortFragment.viewModel.maximumCameraFocusDistance =
+                this.get(CameraCharacteristics.LENS_INFO_HYPERFOCAL_DISTANCE)
+                    ?: Float.MAX_VALUE
+        }
+    }
+
+    private fun getImageAnalysis(): ImageAnalysis {
+        val imageAnalysis = ImageAnalysis.Builder()
+            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+            //                    .setTargetResolution(Size(1080, 1920))
+            .build()
+            .also {
+                it.setAnalyzer(
+                    cameraExecutor,
+                    ImageAnalysis.Analyzer { image ->
+                        binding.graphicOverlay.setImageSourceInfo(
+                            image.width,
+                            image.height,
+                            image.imageInfo.rotationDegrees
+                        )
+
+                        sorterService.processImage(image).apply {
+                            drawBoundingBoxes(this)
+                        }
+                        image.close()
+                    })
+            }
+        return imageAnalysis
+    }
+
+    private fun setFocusDistance(previewBuilder: Preview.Builder) {
+        Camera2Interop.Extender(previewBuilder).apply {
+            this.setCaptureRequestOption(
+                CaptureRequest.CONTROL_AF_MODE,
+                CameraMetadata.CONTROL_AF_MODE_OFF
+            )
+            this.setCaptureRequestOption(
+                CaptureRequest.LENS_FOCUS_DISTANCE,
+                viewModel.cameraFocusDistance
+            )
+        }
     }
 
     private fun drawBoundingBoxes(recognizedBricks: List<RecognizedLegoBrick>) {
