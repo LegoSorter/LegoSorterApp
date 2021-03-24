@@ -5,8 +5,12 @@ import androidx.lifecycle.ViewModel
 
 class SortViewModel : ViewModel() {
 
+    private val _eventStartStopMachineButtonClicked = MutableLiveData<Boolean>()
+    val eventStartStopMachineButtonClicked
+        get() = _eventStartStopMachineButtonClicked
+
     private val _eventStartStopButtonClicked = MutableLiveData<Boolean>()
-    val eventStartStopButtonClicked
+    val eventStartStopSortingButtonClicked
         get() = _eventStartStopButtonClicked
 
     var cameraFocusDistance: Float = 0f
@@ -16,8 +20,12 @@ class SortViewModel : ViewModel() {
     var maximumCameraFocusDistance: Float = FOCUS_DISTANCE_MAXIMUM_VALUE
         get() = field.coerceAtLeast(FOCUS_DISTANCE_MAXIMUM_VALUE)
 
-    fun onStartStop() {
-        eventStartStopButtonClicked.value = true
+    fun onStartStopSorting() {
+        eventStartStopSortingButtonClicked.value = true
+    }
+
+    fun onStartStopMachine() {
+        eventStartStopMachineButtonClicked.value = true
     }
 
     companion object {

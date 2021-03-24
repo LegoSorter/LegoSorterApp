@@ -47,11 +47,11 @@ class AnalyzeFragment : Fragment() {
                 if (eventActionButtonClicked) {
                     if (!analysisStarted) {
                         analyzeImages()
-                        binding.startstop.text = getString(R.string.stop_text)
+                        binding.startStopSortingButton.text = getString(R.string.stop_text)
                         analysisStarted = true
                     } else {
                         stopImageAnalysis()
-                        binding.startstop.text = getString(R.string.start_text)
+                        binding.startStopSortingButton.text = getString(R.string.start_text)
                         analysisStarted = false
                     }
                 }

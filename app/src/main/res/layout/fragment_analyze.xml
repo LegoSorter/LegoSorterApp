@@ -36,12 +36,12 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <Button
-            android:id="@+id/startstop"
+            android:id="@+id/start_stop_sorting_button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:onClick="@{() -> analyzeViewModel.onActionButtonClicked()}"
-            android:text="@string/start_text" />
+            android:text="@string/start_sorting_text" />
 
     </LinearLayout>
 

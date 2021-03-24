@@ -8,7 +8,11 @@
     <string name="create_dataset">Create dataset</string>
     <string name="sort">Sort</string>
     <string name="analyze">Analyze</string>
-    <string name="stop_text">Stop</string>
     <string name="start_text">Start</string>
+    <string name="stop_text">Stop</string>
+    <string name="stop_sorting_text">Stop sorting</string>
+    <string name="start_sorting_text">Start sorting</string>
+    <string name="start_machine_text">Start machine</string>
+    <string name="stop_machine_text">Stop machine</string>
     <string name="focus">Focus</string>
 </resources>

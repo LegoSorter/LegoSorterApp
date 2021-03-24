@@ -23,7 +23,6 @@ import com.lsorter.analyze.layer.LegoGraphic
 import com.lsorter.databinding.FragmentSortBinding
 import com.lsorter.sort.DefaultLegoBrickSorterService
 import com.lsorter.sort.LegoBrickSorterService
-import kotlinx.android.synthetic.main.fragment_start.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
@@ -37,6 +36,7 @@ class SortFragment : Fragment() {
     private lateinit var sorterService: LegoBrickSorterService
 
     private var isSortingStarted: AtomicBoolean = AtomicBoolean(false)
+    private var isMachineStarted: AtomicBoolean = AtomicBoolean(false)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -76,19 +76,32 @@ class SortFragment : Fragment() {
 
         sorterService = DefaultLegoBrickSorterService()
 
-        viewModel.eventStartStopButtonClicked.observe(
+        viewModel.eventStartStopSortingButtonClicked.observe(
             viewLifecycleOwner,
             Observer {
                 if (isSortingStarted.get()) {
                     isSortingStarted.set(false)
                     setVisibilityOfFocusSeeker(View.VISIBLE)
                     stopSorting()
-                    binding.startstop.text = "Start"
+                    binding.startStopSortingButton.text = getString(com.lsorter.R.string.start_sorting_text)
                 } else {
                     setVisibilityOfFocusSeeker(View.GONE)
                     startSorting()
-                    binding.startstop.text = "Stop"
+                    binding.startStopSortingButton.text = getString(com.lsorter.R.string.stop_sorting_text)
                     isSortingStarted.set(true)
+                }
+            }
+        )
+
+        viewModel.eventStartStopMachineButtonClicked.observe(
+            viewLifecycleOwner,
+            Observer {
+                if(isMachineStarted.get()) {
+                    isMachineStarted.set(false)
+                    binding.startStopMachineButton.text = getString(com.lsorter.R.string.start_machine_text)
+                } else {
+                    isMachineStarted.set(true)
+                    binding.startStopMachineButton.text = getString(com.lsorter.R.string.stop_machine_text)
                 }
             }
         )
