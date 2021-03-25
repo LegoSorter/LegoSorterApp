@@ -98,15 +98,25 @@ class SortFragment : Fragment() {
             Observer {
                 if(isMachineStarted.get()) {
                     isMachineStarted.set(false)
+                    stopMachine()
                     binding.startStopMachineButton.text = getString(com.lsorter.R.string.start_machine_text)
                 } else {
                     isMachineStarted.set(true)
+                    startMachine()
                     binding.startStopMachineButton.text = getString(com.lsorter.R.string.stop_machine_text)
                 }
             }
         )
 
         setupCamera()
+    }
+
+    private fun startMachine() {
+        sorterService.startMachine()
+    }
+
+    private fun stopMachine() {
+        sorterService.stopMachine()
     }
 
     private fun setVisibilityOfFocusSeeker(visibility: Int) {

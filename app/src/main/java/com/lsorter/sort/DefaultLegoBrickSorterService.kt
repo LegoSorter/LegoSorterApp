@@ -20,12 +20,14 @@ class DefaultLegoBrickSorterService : LegoBrickSorterService {
             LegoSorterGrpc.newBlockingStub(connectionManager.getConnectionChannel())
     }
 
-    override fun startSorter() {
-        TODO("Not yet implemented")
+    @SuppressLint("CheckResult")
+    override fun startMachine() {
+        this.legoSorterService.startMachine(CommonMessagesProto.Empty.getDefaultInstance())
     }
 
-    override fun stopSorter() {
-        TODO("Not yet implemented")
+    @SuppressLint("CheckResult")
+    override fun stopMachine() {
+        this.legoSorterService.startMachine(CommonMessagesProto.Empty.getDefaultInstance())
     }
 
     @SuppressLint("RestrictedApi")
