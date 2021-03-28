@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:onClick="@{() -> analyzeViewModel.onActionButtonClicked()}"
-            android:text="@string/start_sorting_text" />
+            android:text="@string/analyze" />
 
     </LinearLayout>
 

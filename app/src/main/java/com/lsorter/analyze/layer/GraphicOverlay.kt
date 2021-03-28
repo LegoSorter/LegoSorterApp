@@ -131,7 +131,7 @@ class GraphicOverlay(context: Context?, attrs: AttributeSet?) : View(context, at
         Preconditions.checkState(imageHeight > 0, "image height must be positive")
 
         synchronized(lock) {
-            if (rotation == 90) {
+            if (rotation == 90 || rotation == 270) {
                 this.imageWidth = imageHeight
                 this.imageHeight = imageWidth
             } else {
