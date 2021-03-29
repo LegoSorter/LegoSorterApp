@@ -6,6 +6,7 @@ import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.util.Size
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -178,7 +179,7 @@ class SortFragment : Fragment() {
     private fun getImageAnalysis(): ImageAnalysis {
         val imageAnalysis = ImageAnalysis.Builder()
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-            //                    .setTargetResolution(Size(1080, 1920))
+//            .setTargetResolution(Size(360, 640))
             .build()
             .also {
                 it.setAnalyzer(

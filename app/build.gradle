@@ -70,6 +70,7 @@ dependencies {
 
     // Object detection feature with bundled default classifier
     implementation 'com.google.mlkit:object-detection:16.2.1'
+    implementation 'androidx.preference:preference:1.1.1'
 
     def camerax_version = "1.0.0-beta11"
     // CameraX core library using camera2 implementation
@@ -97,4 +98,6 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     // LiveData
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+
+    implementation "androidx.preference:preference-ktx:1.1.1"
 }

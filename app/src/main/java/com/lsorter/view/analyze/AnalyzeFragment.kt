@@ -1,14 +1,11 @@
 package com.lsorter.view.analyze
 
 import android.annotation.SuppressLint
-import android.hardware.camera2.CaptureRequest
 import android.os.Bundle
-import android.util.Range
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
@@ -85,11 +82,11 @@ class AnalyzeFragment : Fragment() {
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
         val builder = ImageAnalysis.Builder()
-        val extender = Camera2Interop.Extender(builder)
-        extender.setCaptureRequestOption(
-            CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
-            Range(30, 60)
-        )
+//        val extender = Camera2Interop.Extender(builder)
+//        extender.setCaptureRequestOption(
+//            CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
+//            Range(30, 60)
+//        )
 
         val analysisUseCase = builder
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)

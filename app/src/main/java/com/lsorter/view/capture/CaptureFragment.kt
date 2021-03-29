@@ -1,11 +1,14 @@
 package com.lsorter.view.capture
 
+import android.annotation.SuppressLint
+import android.hardware.camera2.CaptureRequest
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
@@ -16,6 +19,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.lsorter.capture.LegoBrickDatasetCapture
 import com.lsorter.capture.RemoteLegoBrickImagesCapture
 import com.lsorter.databinding.FragmentCaptureBinding
+import com.lsorter.utils.PreferencesUtils
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -25,6 +29,7 @@ class CaptureFragment : Fragment() {
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var binding: FragmentCaptureBinding
     private lateinit var legoBrickImagesCapture: LegoBrickDatasetCapture
+    private lateinit var camera: Camera
 
     private val args: CaptureFragmentArgs by navArgs()
 
@@ -116,14 +121,11 @@ class CaptureFragment : Fragment() {
 
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             val preview = Preview.Builder().build()
-
-            val imageCapture = ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
-                .setFlashMode(ImageCapture.FLASH_MODE_OFF)
-                .build()
+            val imageCapture = PreferencesUtils.buildImageCapture(requireContext())
 
             cameraProvider.unbindAll()
-            cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview)
+            camera = cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview)
+            PreferencesUtils.applyPreferences(camera, requireContext())
             preview.setSurfaceProvider(binding.viewFinder.surfaceProvider)
 
             this.legoBrickImagesCapture = RemoteLegoBrickImagesCapture(imageCapture)
