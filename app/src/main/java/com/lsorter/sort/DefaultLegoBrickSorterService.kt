@@ -27,7 +27,7 @@ class DefaultLegoBrickSorterService : LegoBrickSorterService {
 
     @SuppressLint("CheckResult")
     override fun stopMachine() {
-        this.legoSorterService.startMachine(CommonMessagesProto.Empty.getDefaultInstance())
+        this.legoSorterService.stopMachine(CommonMessagesProto.Empty.getDefaultInstance())
     }
 
     @SuppressLint("RestrictedApi")
