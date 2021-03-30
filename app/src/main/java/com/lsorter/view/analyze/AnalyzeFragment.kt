@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.lsorter.R
 import com.lsorter.databinding.FragmentAnalyzeBinding
 import com.lsorter.analyze.LegoImageAnalyzer
+import com.lsorter.utils.PreferencesUtils
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
@@ -81,27 +82,25 @@ class AnalyzeFragment : Fragment() {
         val cameraProvider = cameraProvider!!
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
-        val builder = ImageAnalysis.Builder()
-//        val extender = Camera2Interop.Extender(builder)
-//        extender.setCaptureRequestOption(
-//            CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
-//            Range(30, 60)
-//        )
+        val analysisUseCase =
+            PreferencesUtils.extendImageAnalysis(ImageAnalysis.Builder(), context)
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build()
+                .also {
+                    it.setAnalyzer(
+                        analysisExecutor,
+                        imageAnalyzer
+                    )
+                }
 
-        val analysisUseCase = builder
-            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+        val preview = PreferencesUtils.extendPreviewView(Preview.Builder(), context)
             .build()
-            .also {
-                it.setAnalyzer(
-                    analysisExecutor,
-                    imageAnalyzer
-                )
-            }
-
-        val preview = Preview.Builder().build()
 
         cameraProvider.unbindAll()
         cameraProvider.bindToLifecycle(this, cameraSelector, analysisUseCase, preview)
+            .apply {
+                PreferencesUtils.applyPreferences(this, context)
+            }
         preview.setSurfaceProvider(binding.viewFinder.surfaceProvider)
     }
 

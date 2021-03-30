@@ -24,6 +24,7 @@ import com.lsorter.analyze.layer.LegoGraphic
 import com.lsorter.databinding.FragmentSortBinding
 import com.lsorter.sort.DefaultLegoBrickSorterService
 import com.lsorter.sort.LegoBrickSorterService
+import com.lsorter.utils.PreferencesUtils
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
@@ -84,11 +85,13 @@ class SortFragment : Fragment() {
                     isSortingStarted.set(false)
                     setVisibilityOfFocusSeeker(View.VISIBLE)
                     stopSorting()
-                    binding.startStopSortingButton.text = getString(com.lsorter.R.string.start_sorting_text)
+                    binding.startStopSortingButton.text =
+                        getString(com.lsorter.R.string.start_sorting_text)
                 } else {
                     setVisibilityOfFocusSeeker(View.GONE)
                     startSorting()
-                    binding.startStopSortingButton.text = getString(com.lsorter.R.string.stop_sorting_text)
+                    binding.startStopSortingButton.text =
+                        getString(com.lsorter.R.string.stop_sorting_text)
                     isSortingStarted.set(true)
                 }
             }
@@ -97,14 +100,16 @@ class SortFragment : Fragment() {
         viewModel.eventStartStopMachineButtonClicked.observe(
             viewLifecycleOwner,
             Observer {
-                if(isMachineStarted.get()) {
+                if (isMachineStarted.get()) {
                     isMachineStarted.set(false)
                     stopMachine()
-                    binding.startStopMachineButton.text = getString(com.lsorter.R.string.start_machine_text)
+                    binding.startStopMachineButton.text =
+                        getString(com.lsorter.R.string.start_machine_text)
                 } else {
                     isMachineStarted.set(true)
                     startMachine()
-                    binding.startStopMachineButton.text = getString(com.lsorter.R.string.stop_machine_text)
+                    binding.startStopMachineButton.text =
+                        getString(com.lsorter.R.string.stop_machine_text)
                 }
             }
         )
@@ -146,7 +151,9 @@ class SortFragment : Fragment() {
             cameraProvider.unbindAll()
 
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-            val preview = Preview.Builder().apply { setFocusDistance(this) }.build()
+            val preview = PreferencesUtils.extendPreviewView(Preview.Builder(), context)
+                .apply { setFocusDistance(this) }
+                .build()
 
             if (startAnalysis) {
                 val imageAnalysis = getImageAnalysis()
@@ -155,6 +162,7 @@ class SortFragment : Fragment() {
                 cameraProvider.bindToLifecycle(this, cameraSelector, preview)
             }.apply {
                 extractLensCharacteristics()
+                PreferencesUtils.applyPreferences(this, context)
             }
 
             preview.setSurfaceProvider(binding.viewFinder.surfaceProvider)
@@ -177,9 +185,9 @@ class SortFragment : Fragment() {
     }
 
     private fun getImageAnalysis(): ImageAnalysis {
-        val imageAnalysis = ImageAnalysis.Builder()
+        return PreferencesUtils.extendImageAnalysis(ImageAnalysis.Builder(), context)
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-//            .setTargetResolution(Size(360, 640))
+            .setTargetResolution(Size(640, 960))
             .build()
             .also {
                 it.setAnalyzer(
@@ -197,7 +205,6 @@ class SortFragment : Fragment() {
                         image.close()
                     })
             }
-        return imageAnalysis
     }
 
     private fun setFocusDistance(previewBuilder: Preview.Builder) {

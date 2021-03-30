@@ -1,14 +1,11 @@
 package com.lsorter.view.capture
 
-import android.annotation.SuppressLint
-import android.hardware.camera2.CaptureRequest
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
@@ -29,7 +26,6 @@ class CaptureFragment : Fragment() {
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var binding: FragmentCaptureBinding
     private lateinit var legoBrickImagesCapture: LegoBrickDatasetCapture
-    private lateinit var camera: Camera
 
     private val args: CaptureFragmentArgs by navArgs()
 
@@ -120,12 +116,16 @@ class CaptureFragment : Fragment() {
             this.cameraProvider = cameraProviderFuture.get()
 
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-            val preview = Preview.Builder().build()
-            val imageCapture = PreferencesUtils.buildImageCapture(requireContext())
+            val preview = PreferencesUtils.extendPreviewView(Preview.Builder(), context)
+                .build()
+            val imageCapture =
+                PreferencesUtils.extendImageCapture(ImageCapture.Builder(), context)
+                    .build()
 
             cameraProvider.unbindAll()
-            camera = cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview)
-            PreferencesUtils.applyPreferences(camera, requireContext())
+            cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview)
+                .apply { PreferencesUtils.applyPreferences(this, context) }
+
             preview.setSurfaceProvider(binding.viewFinder.surfaceProvider)
 
             this.legoBrickImagesCapture = RemoteLegoBrickImagesCapture(imageCapture)
