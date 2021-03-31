@@ -3,7 +3,6 @@
 
     <PreferenceCategory app:title="@string/camera_settings_category_title">
 
-
         <ListPreference
             android:entries="@array/capture_mode_items"
             android:entryValues="@array/capture_mode_values"
@@ -32,6 +31,29 @@
             app:key="SENSOR_SENSITIVITY"
             app:summary="@string/sensor_sensitivity_summary"
             app:title="@string/sensor_sensitivity_title" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Sorting configuration">
+
+        <SeekBarPreference
+            android:max="100"
+            app:defaultValue="50"
+            app:key="SORTER_CONVEYOR_SPEED_VALUE"
+            app:title="@string/conveyor_speed_title" />
+
+        <ListPreference
+            app:defaultValue="0"
+            app:entries="@array/sorting_mode_items"
+            app:entryValues="@array/sorting_mode_values"
+            app:key="SORTER_MODE_PREFERENCE"
+            app:title="@string/sorting_mode_title"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            app:defaultValue="500"
+            app:key="RUN_CONVEYOR_TIME_VALUE"
+            app:title="How long run conveyor between capture requests (ms)"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -18,6 +18,7 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
+import androidx.preference.PreferenceManager
 import com.google.common.util.concurrent.ListenableFuture
 import com.lsorter.analyze.common.RecognizedLegoBrick
 import com.lsorter.analyze.layer.LegoGraphic
@@ -39,6 +40,7 @@ class SortFragment : Fragment() {
 
     private var isSortingStarted: AtomicBoolean = AtomicBoolean(false)
     private var isMachineStarted: AtomicBoolean = AtomicBoolean(false)
+    private var initialized: AtomicBoolean = AtomicBoolean(false)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -57,7 +59,7 @@ class SortFragment : Fragment() {
                     binding.focusDistanceValue.text = String.format("%.2f", cameraFocusDistance)
                 }
 
-                setupCamera(startAnalysis = false)
+                initialize(startProcessing = false)
             }
 
             private fun SortViewModel.calculateFocusDistance(progressScaled: Float) =
@@ -114,7 +116,7 @@ class SortFragment : Fragment() {
             }
         )
 
-        setupCamera()
+        initialize()
     }
 
     private fun startMachine() {
@@ -131,20 +133,27 @@ class SortFragment : Fragment() {
     }
 
     private fun startSorting() {
-        setupCamera(startAnalysis = true)
+        initialize(startProcessing = true)
     }
 
     private fun stopSorting() {
         cameraProvider.unbindAll()
+        sorterService.stopImageCapturing()
         binding.graphicOverlay.let {
             it.clear()
             it.postInvalidate()
         }
-        setupCamera(startAnalysis = false)
+        initialize(startProcessing = false)
     }
 
-    private fun setupCamera(startAnalysis: Boolean = false): ListenableFuture<ProcessCameraProvider> {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(this.requireContext())
+    private fun initialize(startProcessing: Boolean = false): ListenableFuture<ProcessCameraProvider> {
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
+        val pref = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val conveyorSpeed = pref.getInt(CONVEYOR_SPEED_VALUE_PREFERENCE_KEY, 50)
+        val runConveyorTime = pref.getString(RUN_CONVEYOR_TIME_PREFERENCE_KEY, "500")!!.toInt()
+        val sortingMode = pref.getString(SORTING_MODE_PREFERENCE_KEY, "0")!!.toInt()
+
+        sorterService.updateConfig(LegoBrickSorterService.SorterConfiguration(conveyorSpeed))
 
         cameraProviderFuture.addListener(Runnable {
             this.cameraProvider = cameraProviderFuture.get()
@@ -155,9 +164,20 @@ class SortFragment : Fragment() {
                 .apply { setFocusDistance(this) }
                 .build()
 
-            if (startAnalysis) {
-                val imageAnalysis = getImageAnalysis()
-                cameraProvider.bindToLifecycle(this, cameraSelector, imageAnalysis, preview)
+            if (startProcessing) {
+                if (sortingMode == STOP_CAPTURE_RUN_PREFERENCE) {
+                    val imageCapture = getImageCapture()
+                    val camera =
+                        cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview)
+                    sorterService.scheduleImageCapturingAndStartMachine(
+                        imageCapture,
+                        runConveyorTime
+                    ) { image -> processImageAndDrawBricks(image) }
+                    camera
+                } else {
+                    val imageAnalysis = getImageAnalysis()
+                    cameraProvider.bindToLifecycle(this, cameraSelector, imageAnalysis, preview)
+                }
             } else {
                 cameraProvider.bindToLifecycle(this, cameraSelector, preview)
             }.apply {
@@ -166,6 +186,7 @@ class SortFragment : Fragment() {
             }
 
             preview.setSurfaceProvider(binding.viewFinder.surfaceProvider)
+            initialized.set(true)
         }, ContextCompat.getMainExecutor(this.requireContext()))
 
         return cameraProviderFuture
@@ -192,19 +213,27 @@ class SortFragment : Fragment() {
             .also {
                 it.setAnalyzer(
                     cameraExecutor,
-                    ImageAnalysis.Analyzer { image ->
-                        binding.graphicOverlay.setImageSourceInfo(
-                            image.width,
-                            image.height,
-                            image.imageInfo.rotationDegrees
-                        )
-
-                        sorterService.processImage(image).apply {
-                            drawBoundingBoxes(this)
-                        }
-                        image.close()
-                    })
+                    ImageAnalysis.Analyzer { image -> processImageAndDrawBricks(image) }
+                )
             }
+    }
+
+    private fun processImageAndDrawBricks(image: ImageProxy) {
+        binding.graphicOverlay.setImageSourceInfo(
+            image.width,
+            image.height,
+            image.imageInfo.rotationDegrees
+        )
+
+        sorterService.processImage(image).apply {
+            drawBoundingBoxes(this)
+        }
+        image.close()
+    }
+
+    private fun getImageCapture(): ImageCapture {
+        return PreferencesUtils.extendImageCapture(ImageCapture.Builder(), context)
+            .build()
     }
 
     private fun setFocusDistance(previewBuilder: Preview.Builder) {
@@ -234,8 +263,18 @@ class SortFragment : Fragment() {
     }
 
     override fun onDestroy() {
-        stopSorting()
-
+        if (initialized.get()) {
+            stopSorting()
+            initialized.set(false)
+        }
         super.onDestroy()
+    }
+
+    companion object {
+        const val SORTING_MODE_PREFERENCE_KEY: String = "SORTER_MODE_PREFERENCE"
+        const val STOP_CAPTURE_RUN_PREFERENCE: Int = 0
+        const val CONTINUOUS_MOVE_PREFERENCE: Int = 1
+        const val RUN_CONVEYOR_TIME_PREFERENCE_KEY: String = "RUN_CONVEYOR_TIME_VALUE"
+        const val CONVEYOR_SPEED_VALUE_PREFERENCE_KEY: String = "SORTER_CONVEYOR_SPEED_VALUE"
     }
 }

@@ -22,7 +22,7 @@
     <!-- Preferences -->
     <string name="title_activity_settings">Settings</string>
     <string name="exposure_compensation_title">Camera compensation value</string>
-    <string name="manual_settings_title">Set exposure settings manually</string>
+    <string name="manual_settings_title">Custom exposure settings</string>
     <string name="sensor_exposure_time_title">Sensor exposure time</string>
     <string name="sensor_sensitivity_title">Sensor sensitivity</string>
     <string name="camera_settings_category_title">Camera settings</string>
@@ -32,4 +32,6 @@
     <string name="sensor_sensitivity_summary">Needs to be between %d and %d\nCurrent value: %s</string>
     <string name="capture_mode_title">Capture mode</string>
     <string name="capture_mode_summary">Current value: %s</string>
+    <string name="conveyor_speed_title">Conveyor speed</string>
+    <string name="sorting_mode_title">Sorting mode</string>
 </resources>

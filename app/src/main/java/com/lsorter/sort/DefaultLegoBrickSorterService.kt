@@ -2,6 +2,7 @@ package com.lsorter.sort
 
 import android.annotation.SuppressLint
 import android.graphics.Rect
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.internal.utils.ImageUtil
 import com.google.protobuf.ByteString
@@ -10,8 +11,16 @@ import com.lsorter.common.CommonMessagesProto
 import com.lsorter.connection.ConnectionManager
 import com.lsorter.sorter.LegoSorterGrpc
 import com.lsorter.sorter.LegoSorterProto
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 class DefaultLegoBrickSorterService : LegoBrickSorterService {
+    private val captureExecutor: ExecutorService = Executors.newFixedThreadPool(2)
+    private var terminated: AtomicBoolean = AtomicBoolean(false)
+    private var canProcessNext: AtomicBoolean = AtomicBoolean(true)
+
     private val connectionManager: ConnectionManager = ConnectionManager()
     private val legoSorterService: LegoSorterGrpc.LegoSorterBlockingStub
 
@@ -40,16 +49,64 @@ class DefaultLegoBrickSorterService : LegoBrickSorterService {
             ).setRotation(image.imageInfo.rotationDegrees)
             .build()
 
-        val response = legoSorterService.processNextImage(imageRequest)
-        return mapResponse(response)
+        return mapResponse(legoSorterService.processNextImage(imageRequest))
     }
 
+    @SuppressLint("CheckResult")
     override fun updateConfig(configuration: LegoBrickSorterService.SorterConfiguration) {
-        TODO("Not yet implemented")
+        val configRequest = LegoSorterProto.SorterConfiguration.newBuilder()
+            .setSpeed(configuration.speed)
+            .build()
+
+        legoSorterService.updateConfiguration(configRequest)
     }
 
     override fun getConfig(): LegoBrickSorterService.SorterConfiguration {
         TODO("Not yet implemented")
+    }
+
+    override fun scheduleImageCapturingAndStartMachine(
+        imageCapture: ImageCapture,
+        runTime: Int,
+        callback: (ImageProxy) -> Unit
+    ) {
+        terminated.set(false)
+        canProcessNext.set(true)
+        captureExecutor.submit {
+            while (!terminated.get()) {
+                synchronized(canProcessNext) {
+                    if (canProcessNext.get()) {
+                        canProcessNext.set(false)
+                        stopMachine()
+                        captureImage(imageCapture) { image ->
+                            callback(image)
+                            startMachine()
+                            Thread.sleep(runTime.toLong())
+                            canProcessNext.set(true)
+                        }
+                    }
+                    Thread.sleep(10)
+                }
+            }
+        }
+    }
+
+    override fun stopImageCapturing() {
+        terminated.set(true)
+        captureExecutor.awaitTermination(2, TimeUnit.SECONDS)
+        stopMachine()
+    }
+
+    private fun captureImage(
+        imageCapture: ImageCapture,
+        callback: (ImageProxy) -> Unit
+    ) {
+        imageCapture.takePicture(
+            captureExecutor,
+            object : ImageCapture.OnImageCapturedCallback() {
+                override fun onCaptureSuccess(image: ImageProxy) = callback(image)
+            }
+        )
     }
 
     private fun mapResponse(boxes: LegoSorterProto.ListOfBoundingBoxesWithIndexes): List<RecognizedLegoBrick> {
