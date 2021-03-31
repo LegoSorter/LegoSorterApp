@@ -31,7 +31,9 @@ class DefaultLegoBrickSorterService : LegoBrickSorterService {
 
     @SuppressLint("CheckResult")
     override fun startMachine() {
-        this.legoSorterService.startMachine(CommonMessagesProto.Empty.getDefaultInstance())
+        if (!terminated.get()) {
+            this.legoSorterService.startMachine(CommonMessagesProto.Empty.getDefaultInstance())
+        }
     }
 
     @SuppressLint("CheckResult")
@@ -93,7 +95,6 @@ class DefaultLegoBrickSorterService : LegoBrickSorterService {
 
     override fun stopImageCapturing() {
         terminated.set(true)
-        captureExecutor.awaitTermination(2, TimeUnit.SECONDS)
         stopMachine()
     }
 

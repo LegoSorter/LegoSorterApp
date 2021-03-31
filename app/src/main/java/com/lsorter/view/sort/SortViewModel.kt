@@ -21,11 +21,13 @@ class SortViewModel : ViewModel() {
         get() = field.coerceAtLeast(FOCUS_DISTANCE_MAXIMUM_VALUE)
 
     fun onStartStopSorting() {
-        eventStartStopSortingButtonClicked.value = true
+        eventStartStopSortingButtonClicked.value =
+            !(eventStartStopSortingButtonClicked.value ?: false)
     }
 
     fun onStartStopMachine() {
-        eventStartStopMachineButtonClicked.value = true
+        eventStartStopMachineButtonClicked.value =
+            !(eventStartStopMachineButtonClicked.value ?: false)
     }
 
     companion object {

@@ -82,19 +82,19 @@ class SortFragment : Fragment() {
 
         viewModel.eventStartStopSortingButtonClicked.observe(
             viewLifecycleOwner,
-            Observer {
-                if (isSortingStarted.get()) {
-                    isSortingStarted.set(false)
-                    setVisibilityOfFocusSeeker(View.VISIBLE)
-                    stopSorting()
-                    binding.startStopSortingButton.text =
-                        getString(com.lsorter.R.string.start_sorting_text)
-                } else {
+            Observer { startSorting ->
+                if (startSorting) {
                     setVisibilityOfFocusSeeker(View.GONE)
                     startSorting()
                     binding.startStopSortingButton.text =
                         getString(com.lsorter.R.string.stop_sorting_text)
                     isSortingStarted.set(true)
+                } else {
+                    isSortingStarted.set(false)
+                    setVisibilityOfFocusSeeker(View.VISIBLE)
+                    stopSorting()
+                    binding.startStopSortingButton.text =
+                        getString(com.lsorter.R.string.start_sorting_text)
                 }
             }
         )
@@ -137,13 +137,11 @@ class SortFragment : Fragment() {
     }
 
     private fun stopSorting() {
-        cameraProvider.unbindAll()
         sorterService.stopImageCapturing()
         binding.graphicOverlay.let {
             it.clear()
             it.postInvalidate()
         }
-        initialize(startProcessing = false)
     }
 
     private fun initialize(startProcessing: Boolean = false): ListenableFuture<ProcessCameraProvider> {
@@ -233,6 +231,7 @@ class SortFragment : Fragment() {
 
     private fun getImageCapture(): ImageCapture {
         return PreferencesUtils.extendImageCapture(ImageCapture.Builder(), context)
+            .setTargetResolution(Size(1080, 1920))
             .build()
     }
 
