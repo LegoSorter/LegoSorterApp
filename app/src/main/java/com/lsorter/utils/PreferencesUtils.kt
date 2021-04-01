@@ -41,6 +41,7 @@ class PreferencesUtils {
                 }
                 builder.setCaptureMode(if (captureMode == "0") ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY else ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 builder.setTargetResolution(resolution)
+
                 extendByPreferences(builder, preferences)
             }
             return builder.setFlashMode(ImageCapture.FLASH_MODE_OFF)
@@ -78,7 +79,7 @@ class PreferencesUtils {
 
                     extender.setCaptureRequestOption(
                         CaptureRequest.CONTROL_MODE,
-                        CaptureRequest.CONTROL_MODE_OFF
+                        CaptureRequest.CONTROL_MODE_AUTO
                     )
                     extender.setCaptureRequestOption(
                         CaptureRequest.CONTROL_AE_MODE,

@@ -116,6 +116,10 @@ class SortFragment : Fragment() {
             }
         )
 
+    }
+
+    override fun onResume() {
+        super.onResume()
         initialize()
     }
 
@@ -263,7 +267,9 @@ class SortFragment : Fragment() {
 
     override fun onDestroy() {
         if (initialized.get()) {
-            stopSorting()
+            if (isSortingStarted.get() || isMachineStarted.get()) {
+                stopSorting()
+            }
             initialized.set(false)
         }
         super.onDestroy()

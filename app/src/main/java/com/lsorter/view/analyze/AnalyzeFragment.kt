@@ -37,8 +37,6 @@ class AnalyzeFragment : Fragment() {
         binding.analyzeViewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
-        prepareCamera()
-
         viewModel.eventActionButtonClicked.observe(
             viewLifecycleOwner,
             Observer { eventActionButtonClicked ->
@@ -56,6 +54,11 @@ class AnalyzeFragment : Fragment() {
             })
 
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        prepareCamera()
     }
 
     private fun prepareCamera() {
