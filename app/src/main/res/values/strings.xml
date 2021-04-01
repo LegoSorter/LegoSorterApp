@@ -17,7 +17,7 @@
     <string name="focus">Focus</string>
 
     <!-- Preference Titles -->
-    <string name="camera_settings">Camera settings</string>
+    <string name="settings_item_title">Settings</string>
 
     <!-- Preferences -->
     <string name="title_activity_settings">Settings</string>

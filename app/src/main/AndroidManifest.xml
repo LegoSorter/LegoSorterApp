@@ -18,11 +18,11 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".view.settings.SettingsActivity"
-            android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+            android:label="@string/title_activity_settings">
+            <!--            android:parentActivityName=".MainActivity">-->
+            <!--            <meta-data-->
+            <!--                android:name="android.support.PARENT_ACTIVITY"-->
+            <!--                android:value=".MainActivity" />-->
         </activity>
         <activity
             android:name=".MainActivity"

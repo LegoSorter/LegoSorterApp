@@ -38,8 +38,8 @@ class CaptureFragment : Fragment() {
         return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onResume() {
+        super.onResume()
 
         val setupCameraFuture = setupCamera()
         setupCameraFuture.addListener(

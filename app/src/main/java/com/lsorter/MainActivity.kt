@@ -1,11 +1,8 @@
 package com.lsorter
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
@@ -37,7 +34,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.camera_settings) {
+        if (item.itemId == R.id.settings_item) {
             Intent(this, SettingsActivity::class.java).apply {
                 startActivity(this)
             }
