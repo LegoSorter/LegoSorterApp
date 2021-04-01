@@ -217,22 +217,22 @@ class SortFragment : Fragment() {
     }
 
     private fun processImageAndDrawBricks(image: ImageProxy) {
-        binding.graphicOverlay.setImageSourceInfo(
-            image.width,
-            image.height,
-            image.imageInfo.rotationDegrees
-        )
+        if (isSortingStarted.get()) {
+            binding.graphicOverlay.setImageSourceInfo(
+                image.width,
+                image.height,
+                image.imageInfo.rotationDegrees
+            )
 
-        sorterService.processImage(image).apply {
-            drawBoundingBoxes(this)
+            sorterService.processImage(image).apply {
+                drawBoundingBoxes(this)
+            }
         }
         image.close()
     }
 
     private fun getImageCapture(): ImageCapture {
-        return PreferencesUtils.extendImageCapture(ImageCapture.Builder(), context)
-            .setTargetResolution(Size(1080, 1920))
-            .build()
+        return PreferencesUtils.extendImageCapture(ImageCapture.Builder(), context).build()
     }
 
     private fun setFocusDistance(previewBuilder: Preview.Builder) {

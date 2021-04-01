@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.hardware.camera2.CaptureRequest
+import android.util.Size
 import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.*
 import androidx.preference.PreferenceManager
@@ -28,7 +29,18 @@ class PreferencesUtils {
             context?.apply {
                 val preferences = PreferenceManager.getDefaultSharedPreferences(context)
                 val captureMode = preferences.getString("CAPTURE_MODE_PREFERENCE", "0")!!
+                val resolution = preferences.getString("CAPTURE_RESOLUTION_VALUE", "0")!!.let {
+                    when (it) {
+                        "0" -> RESOLUTION_SD
+                        "1" -> RESOLUTION_HD
+                        "2" -> RESOLUTION_FHD
+                        "3" -> RESOLUTION_2K
+                        "4" -> RESOLUTION_UHD
+                        else -> RESOLUTION_UHD
+                    }
+                }
                 builder.setCaptureMode(if (captureMode == "0") ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY else ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                builder.setTargetResolution(resolution)
                 extendByPreferences(builder, preferences)
             }
             return builder.setFlashMode(ImageCapture.FLASH_MODE_OFF)
@@ -94,5 +106,11 @@ class PreferencesUtils {
                 }
             }
         }
+
+        private val RESOLUTION_SD = Size(480, 640)
+        private val RESOLUTION_HD = Size(720, 1280)
+        private val RESOLUTION_FHD = Size(1080, 1920)
+        private val RESOLUTION_2K = Size(1152, 2048)
+        private val RESOLUTION_UHD = Size(2160, 3840)
     }
 }

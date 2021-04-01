@@ -4,11 +4,20 @@
     <PreferenceCategory app:title="@string/camera_settings_category_title">
 
         <ListPreference
+            app:defaultValue="0"
             android:entries="@array/capture_mode_items"
             android:entryValues="@array/capture_mode_values"
             android:key="CAPTURE_MODE_PREFERENCE"
             android:summary="@string/capture_mode_summary"
             android:title="@string/capture_mode_title" />
+
+        <ListPreference
+            app:defaultValue="2"
+            android:entries="@array/capture_resolution_items"
+            android:entryValues="@array/capture_resolution_values"
+            android:key="CAPTURE_RESOLUTION_VALUE"
+            app:useSimpleSummaryProvider="true"
+            android:title="@string/capture_resolution_title"/>
 
         <EditTextPreference
             app:key="EXPOSURE_COMPENSATION_VALUE"

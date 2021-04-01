@@ -10,6 +10,23 @@
         <item>1</item>
     </string-array>
 
+    <string-array name="capture_resolution_items">
+        <item>480 x 640 (SD)</item>
+        <item>720 x 1280 (HD)</item>
+        <item>1080 x 1920 (FHD)</item>
+        <item>1152 x 2048 (2K)</item>
+        <item>2160 x 3840 (UHD)</item>
+        <item>Highest possible</item>
+    </string-array>
+
+    <string-array name="capture_resolution_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
     <!-- Sorter modes -->
     <string-array name="sorting_mode_items">
         <item>Stop - Capture - Run</item>
@@ -19,4 +36,5 @@
         <item>0</item>
         <item>1</item>
     </string-array>
+
 </resources>

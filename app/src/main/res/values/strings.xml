@@ -34,4 +34,5 @@
     <string name="capture_mode_summary">Current value: %s</string>
     <string name="conveyor_speed_title">Conveyor speed</string>
     <string name="sorting_mode_title">Sorting mode</string>
+    <string name="capture_resolution_title">Capture resolution</string>
 </resources>
