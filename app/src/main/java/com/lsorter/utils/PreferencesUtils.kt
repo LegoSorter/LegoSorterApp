@@ -64,6 +64,15 @@ class PreferencesUtils {
         ): ImageAnalysis.Builder {
             context?.apply {
                 val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+                val resolution = preferences.getString("ANALYSIS_RESOLUTION_VALUE", "0")!!.let {
+                    when (it) {
+                        "0" -> RESOLUTION_QVGA
+                        "1" -> RESOLUTION_SD
+                        "2" -> RESOLUTION_HD
+                        else -> RESOLUTION_FHD
+                    }
+                }
+                builder.setTargetResolution(resolution)
                 extendByPreferences(builder, preferences)
             }
             return builder
@@ -108,6 +117,7 @@ class PreferencesUtils {
             }
         }
 
+        private val RESOLUTION_QVGA = Size(240, 320)
         private val RESOLUTION_SD = Size(480, 640)
         private val RESOLUTION_HD = Size(720, 1280)
         private val RESOLUTION_FHD = Size(1080, 1920)

@@ -19,6 +19,14 @@
             app:useSimpleSummaryProvider="true"
             android:title="@string/capture_resolution_title"/>
 
+        <ListPreference
+            app:defaultValue="2"
+            android:entries="@array/analysis_resolution_items"
+            android:entryValues="@array/analysis_resolution_values"
+            android:key="ANALYSIS_RESOLUTION_VALUE"
+            app:useSimpleSummaryProvider="true"
+            android:title="@string/analysis_resolution_title"/>
+
         <EditTextPreference
             app:key="EXPOSURE_COMPENSATION_VALUE"
             app:summary="@string/exposure_compensation_summary"

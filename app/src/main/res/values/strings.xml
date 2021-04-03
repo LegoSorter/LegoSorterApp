@@ -35,4 +35,5 @@
     <string name="conveyor_speed_title">Conveyor speed</string>
     <string name="sorting_mode_title">Sorting mode</string>
     <string name="capture_resolution_title">Capture resolution</string>
+    <string name="analysis_resolution_title">Analysis resolution</string>
 </resources>

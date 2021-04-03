@@ -210,7 +210,6 @@ class SortFragment : Fragment() {
     private fun getImageAnalysis(): ImageAnalysis {
         return PreferencesUtils.extendImageAnalysis(ImageAnalysis.Builder(), context)
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-            .setTargetResolution(Size(640, 960))
             .build()
             .also {
                 it.setAnalyzer(
