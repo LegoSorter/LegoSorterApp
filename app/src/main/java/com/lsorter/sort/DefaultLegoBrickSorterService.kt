@@ -48,6 +48,7 @@ class DefaultLegoBrickSorterService : LegoBrickSorterService {
                 )
             ).setRotation(image.imageInfo.rotationDegrees)
             .build()
+        image.close()
 
         return mapResponse(legoSorterService.processNextImage(imageRequest))
     }

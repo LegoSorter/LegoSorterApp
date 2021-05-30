@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class SortFragment : Fragment() {
 
-    private var cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
+    private var cameraExecutor: ExecutorService = Executors.newFixedThreadPool(4)
     private lateinit var viewModel: SortViewModel
     private lateinit var binding: FragmentSortBinding
     private lateinit var cameraProvider: ProcessCameraProvider
@@ -209,7 +209,8 @@ class SortFragment : Fragment() {
 
     private fun getImageAnalysis(): ImageAnalysis {
         return PreferencesUtils.extendImageAnalysis(ImageAnalysis.Builder(), context)
-            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+            .setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
+            .setImageQueueDepth(1)
             .build()
             .also {
                 it.setAnalyzer(
