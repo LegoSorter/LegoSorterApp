@@ -23,6 +23,9 @@
         <action
             android:id="@+id/action_startFragment_to_sortFragment"
             app:destination="@id/sortFragment" />
+        <action
+            android:id="@+id/action_startFragment_to_analyzeFastFragment"
+            app:destination="@id/analyzeFastFragment" />
     </fragment>
     <fragment
         android:id="@+id/analyzeFragment"
@@ -70,4 +73,9 @@
         android:name="com.lsorter.view.sort.SortFragment"
         android:label="fragment_sort"
         tools:layout="@layout/fragment_sort" />
+    <fragment
+        android:id="@+id/analyzeFastFragment"
+        android:name="com.lsorter.view.analyzefast.AnalyzeFastFragment"
+        android:label="fragment_analyze_fast"
+        tools:layout="@layout/fragment_analyze_fast" />
 </navigation>

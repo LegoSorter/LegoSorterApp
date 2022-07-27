@@ -65,5 +65,11 @@ class StartFragment : Fragment() {
                 StartFragmentDirections.actionStartFragmentToSortFragment()
             )
         )
+
+        binding.analyzeFastButton.setOnClickListener(
+            Navigation.createNavigateOnClickListener(
+                StartFragmentDirections.actionStartFragmentToAnalyzeFastFragment()
+            )
+        )
     }
 }
