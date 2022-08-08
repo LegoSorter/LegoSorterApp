@@ -1,28 +1,39 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
-    ext.kotlin_version = "1.3.72"
+    ext.kotlin_version = "1.7.10"
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:4.0.0"
+        classpath 'com.android.tools.build:gradle:7.2.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.3.2"
-        classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.13"
+        classpath 'androidx.navigation:navigation-safe-args-gradle-plugin:2.5.1'
+        classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.19"
+//        classpath "org.jetbrains.kotlin:kotlin-serialization:1.7.10"
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
 
+//apply plugin: 'kotlin-platform-common'
+//plugins {
+//    id 'org.jetbrains.kotlin.jvm' version '1.7.10'
+//    id 'org.jetbrains.kotlin.plugin.serialization' version '1.7.10'
+//}
+
+
+//apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
+
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 }
 
-task clean(type: Delete) {
+
+task clean2(type: Delete) {
     delete rootProject.buildDir
 }

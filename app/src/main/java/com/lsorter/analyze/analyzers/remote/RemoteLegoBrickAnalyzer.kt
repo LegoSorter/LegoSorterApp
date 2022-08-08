@@ -51,7 +51,11 @@ class RemoteLegoBrickAnalyzer(connectionManager: ConnectionManager) : LegoBrickA
         val request = CommonMessagesProto.ImageRequest.newBuilder()
             .setImage(
                 ByteString.copyFrom(
-                    ImageUtil.imageToJpegByteArray(image)
+                    ImageUtil.yuvImageToJpegByteArray(
+                        image,
+                        if (ImageUtil.shouldCropImage(image)) image.cropRect else null,
+                        100
+                    )
                 )
             )
             .setRotation(image.imageInfo.rotationDegrees)

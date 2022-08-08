@@ -32,7 +32,11 @@ class RemoteLegoBrickImagesCapture(private val imageCapture: ImageCapture) :
         val request = LegoCaptureProto.ImageStore.newBuilder()
             .setImage(
                 ByteString.copyFrom(
-                    ImageUtil.imageToJpegByteArray(image)
+                    ImageUtil.yuvImageToJpegByteArray(
+                        image,
+                        if (ImageUtil.shouldCropImage(image)) image.cropRect else null,
+                        100
+                    )
                 )
             )
             .setRotation(image.imageInfo.rotationDegrees)

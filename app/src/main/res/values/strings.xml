@@ -5,6 +5,7 @@
     <string name="provide_lego_label_hint">Provide a lego label</string>
     <string name="preference_file_key">user_shared_preferences</string>
     <string name="saved_server_address_key">user_server_address</string>
+    <string name="saved_web_server_address_key">user_web_server_address</string>
     <string name="create_dataset">Create dataset</string>
     <string name="sort">Sort</string>
     <string name="analyze">Analyze</string>
@@ -39,4 +40,7 @@
     <string name="sorting_mode_title">Sorting mode</string>
     <string name="capture_resolution_title">Capture resolution</string>
     <string name="analysis_resolution_title">Analysis resolution</string>
+    <string name="web_remote_start">Start web remote</string>
+    <string name="web_remote_connecting">Connecting to web remote</string>
+    <string name="web_remote_stop">Stop web remote</string>
 </resources>

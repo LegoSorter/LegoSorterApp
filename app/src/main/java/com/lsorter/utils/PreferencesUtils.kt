@@ -9,6 +9,7 @@ import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.*
 import androidx.preference.PreferenceManager
 
+@androidx.camera.camera2.interop.ExperimentalCamera2Interop
 class PreferencesUtils {
 
     companion object {

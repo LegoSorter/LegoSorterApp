@@ -26,14 +26,14 @@ class SettingsActivity : AppCompatActivity() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
             (preferenceScreen[0] as PreferenceCategory).forEach(this::updateSummary)
-            preferenceManager.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+            preferenceManager.sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
         }
 
         private fun updateSummary(preference: Preference) {
             when (preference.key) {
                 "CAPTURE_MODE_PREFERENCE" -> {
                     preference.apply {
-                        val value = preferenceManager.sharedPreferences.getString(key, "Not set")
+                        val value = preferenceManager.sharedPreferences?.getString(key, "Not set")
                             ?: "Not set"
 
                         this.summary = String.format(
@@ -51,36 +51,42 @@ class SettingsActivity : AppCompatActivity() {
                     preference.apply {
                         val cameraCompensationRange =
                             getBackCameraCharacteristics().get(CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE)
-                        this.summary = String.format(
-                            applicationContext.getString(R.string.exposure_compensation_summary),
-                            cameraCompensationRange?.lower ?: 0,
-                            cameraCompensationRange?.upper ?: 0,
-                            preferenceManager.sharedPreferences.getString(key, "Not set")
-                        )
+                        this.summary = preferenceManager.sharedPreferences?.let {
+                            String.format(
+                                applicationContext.getString(R.string.exposure_compensation_summary),
+                                cameraCompensationRange?.lower ?: 0,
+                                cameraCompensationRange?.upper ?: 0,
+                                it.getString(key, "Not set")
+                            )
+                        }
                     }
                 }
                 "SENSOR_EXPOSURE_TIME" -> {
                     preference.apply {
                         val exposureTimeRange =
                             getBackCameraCharacteristics().get(CameraCharacteristics.SENSOR_INFO_EXPOSURE_TIME_RANGE)
-                        this.summary = String.format(
-                            applicationContext.getString(R.string.sensor_exposure_time_summary),
-                            (exposureTimeRange?.lower ?: 0) / 1e6,
-                            (exposureTimeRange?.upper ?: 0) / 1e6,
-                            preferenceManager.sharedPreferences.getString(key, "Not set")
-                        )
+                        this.summary = preferenceManager.sharedPreferences?.let {
+                            String.format(
+                                applicationContext.getString(R.string.sensor_exposure_time_summary),
+                                (exposureTimeRange?.lower ?: 0) / 1e6,
+                                (exposureTimeRange?.upper ?: 0) / 1e6,
+                                it.getString(key, "Not set")
+                            )
+                        }
                     }
                 }
                 "SENSOR_SENSITIVITY" -> {
                     preference.apply {
                         val sensitivityRange =
                             getBackCameraCharacteristics().get(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE)
-                        this.summary = String.format(
-                            applicationContext.getString(R.string.sensor_sensitivity_summary),
-                            sensitivityRange?.lower ?: 0,
-                            sensitivityRange?.upper ?: 0,
-                            preferenceManager.sharedPreferences.getString(key, "Not set")
-                        )
+                        this.summary = preferenceManager.sharedPreferences?.let {
+                            String.format(
+                                applicationContext.getString(R.string.sensor_sensitivity_summary),
+                                sensitivityRange?.lower ?: 0,
+                                sensitivityRange?.upper ?: 0,
+                                it.getString(key, "Not set")
+                            )
+                        }
                     }
                 }
             }

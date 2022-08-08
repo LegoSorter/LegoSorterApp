@@ -25,9 +25,9 @@ import java.util.concurrent.Executors
 
 class AnalyzeFastFragment : Fragment() {
     private val analysisExecutor: Executor = Executors.newFixedThreadPool(4)
-    private lateinit var binding: FragmentAnalyzeFastBinding
+    public lateinit var binding: FragmentAnalyzeFastBinding
     private lateinit var viewModel: AnalyzeFastViewModel
-    private var analysisStarted = false
+    public var analysisStarted = false
     private var cameraProvider: ProcessCameraProvider? = null
     private var legoImageAnalyzerFast: LegoImageAnalyzerFast? = null
 
@@ -48,8 +48,8 @@ class AnalyzeFastFragment : Fragment() {
                     if (!analysisStarted) {
                         analyzeImages()
                         binding.startStopSortingButton.text = getString(R.string.stop_text)
-                        binding.cameraSwitch.isEnabled = false;
-                        binding.webSwitch.isEnabled = false;
+//                        binding.cameraSwitch.isEnabled = false;
+//                        binding.webSwitch.isEnabled = false;
                         analysisStarted = true;
 //                        binding.webViewFast.visibility = View.VISIBLE;
 //                        binding.webViewFast.settings.javaScriptEnabled = true;
@@ -60,8 +60,8 @@ class AnalyzeFastFragment : Fragment() {
                     } else {
                         stopImageAnalysis()
                         binding.startStopSortingButton.text = getString(R.string.start_text)
-                        binding.cameraSwitch.isEnabled = true;
-                        binding.webSwitch.isEnabled = true;
+//                        binding.cameraSwitch.isEnabled = true;
+//                        binding.webSwitch.isEnabled = true;
                         analysisStarted = false;
 //                        binding.webViewFast.visibility = View.INVISIBLE;
 //                        binding.webViewFast.loadUrl("");
@@ -69,34 +69,44 @@ class AnalyzeFastFragment : Fragment() {
                     }
                 }
             })
-        val savedCameraPrev = activity?.getSharedPreferences(
-            getString(R.string.preference_file_key), Context.MODE_PRIVATE
-        )?.getBoolean("user_camera_prev",true)?:true
+//        val savedCameraPrev = activity?.getSharedPreferences(
+//            getString(R.string.preference_file_key), Context.MODE_PRIVATE
+//        )?.getBoolean("user_camera_prev",true)?:true
         val savedWebPrev = activity?.getSharedPreferences(
             getString(R.string.preference_file_key), Context.MODE_PRIVATE
         )?.getBoolean("user_web_prev",false)?:false
-
-        if(binding.cameraSwitch.isChecked&& binding.webSwitch.isChecked){
-            binding.webSwitch.isChecked=false;
+        if(savedWebPrev){
+            binding.webViewFast.visibility = View.VISIBLE;
+            binding.webViewFast.settings.javaScriptEnabled = true;
+            binding.webViewFast.settings.domStorageEnabled = true;
+            binding.webViewFast.webViewClient = WebViewClient()
+            binding.webViewFast.loadUrl("http://192.168.11.189:5002/rawbelt");
         }
-
-        binding.cameraSwitch.setOnCheckedChangeListener(){ _, checked ->
-
-            val sharedPref = activity?.getSharedPreferences(
-                getString(R.string.preference_file_key), Context.MODE_PRIVATE
-            )
-            if (sharedPref != null) {
-                with(sharedPref.edit()) {
-                    putBoolean("user_camera_prev",checked);
-                    if(checked && binding.webSwitch.isChecked){
-                        binding.webSwitch.isChecked=false;
-                    }
-                    apply()
-                }
-            }
-
+        else{
+            binding.webViewFast.visibility = View.INVISIBLE;
+            binding.webViewFast.loadUrl("");
         }
-        binding.cameraSwitch.isChecked = savedCameraPrev;
+//        if(binding.cameraSwitch.isChecked&& binding.webSwitch.isChecked){
+//            binding.webSwitch.isChecked=false;
+//        }
+//
+//        binding.cameraSwitch.setOnCheckedChangeListener(){ _, checked ->
+//
+//            val sharedPref = activity?.getSharedPreferences(
+//                getString(R.string.preference_file_key), Context.MODE_PRIVATE
+//            )
+//            if (sharedPref != null) {
+//                with(sharedPref.edit()) {
+//                    putBoolean("user_camera_prev",checked);
+//                    if(checked && binding.webSwitch.isChecked){
+//                        binding.webSwitch.isChecked=false;
+//                    }
+//                    apply()
+//                }
+//            }
+//
+//        }
+//        binding.cameraSwitch.isChecked = savedCameraPrev;
 
         binding.webSwitch.setOnCheckedChangeListener { _, checked ->
 
@@ -106,9 +116,9 @@ class AnalyzeFastFragment : Fragment() {
             if (sharedPref != null) {
                 with(sharedPref.edit()) {
                     putBoolean("user_web_prev",checked);
-                    if(binding.cameraSwitch.isChecked && checked){
-                        binding.cameraSwitch.isChecked=false;
-                    }
+//                    if(binding.cameraSwitch.isChecked && checked){
+//                        binding.cameraSwitch.isChecked=false;
+//                    }
                     apply()
                 }
             }
@@ -117,7 +127,7 @@ class AnalyzeFastFragment : Fragment() {
                 binding.webViewFast.settings.javaScriptEnabled = true;
                 binding.webViewFast.settings.domStorageEnabled = true;
                 binding.webViewFast.webViewClient = WebViewClient()
-                binding.webViewFast.loadUrl("http://192.168.11.189/rawbelt");
+                binding.webViewFast.loadUrl("http://192.168.11.189:5002/rawbelt");
             }
             else{
                 binding.webViewFast.visibility = View.INVISIBLE;
@@ -134,7 +144,7 @@ class AnalyzeFastFragment : Fragment() {
         prepareCamera()
     }
 
-    private fun prepareCamera() {
+    public fun prepareCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this.requireContext())
 
         cameraProviderFuture.addListener(Runnable {
@@ -143,16 +153,18 @@ class AnalyzeFastFragment : Fragment() {
                 LegoImageAnalyzerFast(binding.graphicOverlayFast)
             val cameraProvider = cameraProvider!!
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-            val preview = Preview.Builder().build()
+//            val preview = Preview.Builder().build()
+            val preview = PreferencesUtils.extendPreviewView(Preview.Builder(), context)
+            .build()
 
             cameraProvider.unbindAll()
             cameraProvider.bindToLifecycle(this, cameraSelector, preview)
-            if(binding.cameraSwitch.isChecked)
+//            if(binding.cameraSwitch.isChecked)
                 preview.setSurfaceProvider(binding.viewFinderFast.surfaceProvider)// set where to display camera feed
         }, ContextCompat.getMainExecutor(this.requireContext()))
     }
 
-    private fun analyzeImages() {
+    public fun analyzeImages() {
         this.legoImageAnalyzerFast =
             LegoImageAnalyzerFast(binding.graphicOverlayFast)
         val imageAnalyzer = legoImageAnalyzerFast!!
@@ -178,17 +190,17 @@ class AnalyzeFastFragment : Fragment() {
             .apply {
                 PreferencesUtils.applyPreferences(this, context)
             }
-        if(binding.cameraSwitch.isChecked)
+//        if(binding.cameraSwitch.isChecked)
             preview.setSurfaceProvider(binding.viewFinderFast.surfaceProvider)
     }
 
-    private fun stopImageAnalysis() {
+    public fun stopImageAnalysis() {
         stopCamera()
         prepareCamera()
     }
 
     @SuppressLint("RestrictedApi")
-    private fun stopCamera() {
+    public fun stopCamera() {
         cameraProvider?.unbindAll()
         legoImageAnalyzerFast?.shutdown()
 
