@@ -20,10 +20,11 @@
             android:id="@+id/viewFinder_fast"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintBottom_toTopOf="@+id/linearLayout_fast"
+            app:layout_constraintBottom_toTopOf="@+id/session_name_TextInputLayout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:scaleType="fitCenter">
 
         </androidx.camera.view.PreviewView>
 
@@ -31,7 +32,7 @@
             android:id="@+id/graphic_overlay_fast"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintBottom_toTopOf="@+id/linearLayout_fast"
+            app:layout_constraintBottom_toTopOf="@+id/session_name_TextInputLayout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -40,10 +41,28 @@
             android:id="@+id/webView_fast"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintBottom_toTopOf="@+id/linearLayout_fast"
+            app:layout_constraintBottom_toTopOf="@+id/session_name_TextInputLayout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+<!--        app:layout_constraintDimensionRatio="9/16"-->
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/session_name_TextInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/linearLayout_fast"
+            app:layout_constraintTop_toBottomOf="@+id/viewFinder_fast">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/session_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/save_img_hint"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:text="@string/save_img_example" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout
             android:id="@+id/linearLayout_fast"
@@ -55,15 +74,15 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/viewFinder_fast">
+            app:layout_constraintTop_toBottomOf="@+id/session_name_TextInputLayout">
 
-<!--            <androidx.appcompat.widget.SwitchCompat-->
-<!--                android:id="@+id/camera_switch"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_weight="9"-->
-<!--                android:minHeight="48dp"-->
-<!--                android:text="@string/camera_prev" />-->
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/save_img_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="9"
+                android:minHeight="48dp"
+                android:text="@string/save_img" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/web_switch"

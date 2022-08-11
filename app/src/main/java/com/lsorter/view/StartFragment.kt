@@ -143,6 +143,7 @@ class StartFragment : Fragment() {
             return;
         }
         if (this.hubConnection != null) {
+            this.hubConnection!!.send("sendEndPong")
             this.hubConnection!!.stop()
             this.hubConnection!!.close()
             this.hubConnection = null
@@ -327,6 +328,57 @@ class StartFragment : Fragment() {
         )
 
 //        hubConnection.on("Send") { System.out.println("New Message: $message") }
+
+        hubConnection.on("sendPing") {
+            hubConnection.send("sendPong")
+        }
+
+        hubConnection.on("getConnectionConfigs") {
+            val savedAddr = activity?.getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE
+            )?.getString(
+                getString(R.string.saved_server_address_key),
+                "ip:port"
+            ) ?: "ip:port"
+
+            val savedWebAddr = activity?.getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE
+            )?.getString(
+                getString(R.string.saved_web_server_address_key),
+                "ip:port"
+            ) ?: "ip:port"
+
+            hubConnection.send("sendConnectionConfigs",savedAddr,savedWebAddr)
+        }
+
+        hubConnection.on("setConnectionConfigs", {savedAddr: String, savedWebAddr: String -> run{
+                    val sharedPref = activity?.getSharedPreferences(
+                        getString(R.string.preference_file_key), Context.MODE_PRIVATE
+                    )
+                    if (sharedPref != null) {
+                        with(sharedPref.edit()) {
+                            putString(
+                                getString(R.string.saved_server_address_key),
+                                savedAddr
+                            )
+                            putString(
+                                getString(R.string.saved_web_server_address_key),
+                                savedWebAddr
+                            )
+                            apply()
+                        }
+                    }
+                    activity?.runOnUiThread(Runnable {
+                        // Stuff that updates the UI
+                        binding.serverAddressBox.setText(savedAddr)
+                        binding.webServerAddressBox.setText(savedWebAddr)
+                        setupRemoteControl(binding) //stop
+                        setupRemoteControl(binding) //restart
+                    })
+                }
+            },
+            String::class.java, String::class.java)
+
         hubConnection.on(
             "getConfigs"
         ) {
@@ -528,6 +580,7 @@ class StartFragment : Fragment() {
             })
         }.doOnComplete {
             this.hubConnection = hubConnection
+            hubConnection.send("sendPong")
             this.hubConnectionConnecting = false;
             activity?.runOnUiThread(Runnable {
                 binding.webRemote.text = getString(R.string.web_remote_stop)

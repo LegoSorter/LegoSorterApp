@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebViewClient
+import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
@@ -154,7 +155,7 @@ class AnalyzeFastFragment : Fragment() {
             val cameraProvider = cameraProvider!!
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 //            val preview = Preview.Builder().build()
-            val preview = PreferencesUtils.extendPreviewView(Preview.Builder(), context)
+            val preview = PreferencesUtils.extendPreviewView(Preview.Builder().setTargetAspectRatio(AspectRatio.RATIO_16_9), context)
             .build()
 
             cameraProvider.unbindAll()
@@ -182,7 +183,7 @@ class AnalyzeFastFragment : Fragment() {
                     )
                 }
 
-        val preview = PreferencesUtils.extendPreviewView(Preview.Builder(), context)
+        val preview = PreferencesUtils.extendPreviewView(Preview.Builder().setTargetAspectRatio(AspectRatio.RATIO_16_9), context)
             .build()
 
         cameraProvider.unbindAll()
