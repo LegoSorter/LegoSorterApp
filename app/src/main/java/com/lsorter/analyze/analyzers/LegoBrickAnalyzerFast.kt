@@ -7,7 +7,7 @@ interface LegoBrickAnalyzerFast {
 
     fun detectBricks(image: ImageProxy): List<RecognizedLegoBrick>
 
-    fun detectAndClassify(image: ImageProxy): List<RecognizedLegoBrick>
+    fun detectAndClassify(image: ImageProxy,session: String): List<RecognizedLegoBrick>
 
     fun onStop()
 

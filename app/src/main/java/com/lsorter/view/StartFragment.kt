@@ -5,6 +5,7 @@ import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,9 +20,13 @@ import androidx.preference.PreferenceManager
 import com.lsorter.App
 import com.lsorter.R
 import com.lsorter.databinding.FragmentStartBinding
+import com.lsorter.view.analyze.AnalyzeFragment
 import com.lsorter.view.analyzefast.AnalyzeFastFragment
+import com.lsorter.view.capture.CaptureFragment
+import com.lsorter.view.sort.SortFragment
 import com.microsoft.signalr.HubConnection
 import com.microsoft.signalr.HubConnectionBuilder
+import com.microsoft.signalr.HubConnectionState
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 
@@ -41,7 +46,11 @@ data class Configs(
     val sensor_sensitivity: String,
     val sorter_conveyor_speed_value: Int,
     val sorter_mode_preference: String,
-    val run_conveyor_time_value: String
+    val run_conveyor_time_value: String,
+    val analysis_minimum_delay: String,
+    val render_belt_speed: String,
+    val render_belt_opacity: String,
+    val render_belt_camera_view: Boolean
 )
 
 data class ConfigsConstraints(
@@ -68,9 +77,38 @@ class StartFragment : Fragment() {
             getString(R.string.preference_file_key), Context.MODE_PRIVATE
         )?.getString(
             getString(R.string.saved_server_address_key),
-            "ip:port"
-        ) ?: "ip:port"
+            "server.sorter.ml:50051"
+        ) ?: "server.sorter.ml:50051" //  ip:port
         binding.serverAddressBox.setText(savedAddr)
+
+        binding.serverAddressBox.setOnKeyListener { view, i, keyEvent ->
+            when {
+                //Check if it is the Enter-Key,      Check if the Enter Key was pressed down
+                ((keyEvent.action == KeyEvent.ACTION_DOWN) && (i == KeyEvent.KEYCODE_ENTER)) -> {
+
+                    val imm: InputMethodManager? =
+                        activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+                    imm?.hideSoftInputFromWindow(view?.getWindowToken(), 0)
+
+                    val sharedPref = activity?.getSharedPreferences(
+                        getString(R.string.preference_file_key), Context.MODE_PRIVATE
+                    )
+                    if (sharedPref != null) {
+                        with(sharedPref.edit()) {
+                            putString(
+                                getString(R.string.saved_server_address_key),
+                                binding.serverAddressBox.text.toString()
+                            )
+                            apply()
+                        }
+                    }
+                    binding.serverAddressBox.clearFocus()
+                    return@setOnKeyListener true
+                }
+                else -> false
+            }
+
+        }
 
         binding.serverAddressBox.setOnFocusChangeListener { a, hasFocus ->
             if (!hasFocus) {
@@ -98,9 +136,38 @@ class StartFragment : Fragment() {
             getString(R.string.preference_file_key), Context.MODE_PRIVATE
         )?.getString(
             getString(R.string.saved_web_server_address_key),
-            "ip:port"
-        ) ?: "ip:port"
+            "http://sorter.ml"
+        ) ?: "http://sorter.ml" //  http://ip:port
         binding.webServerAddressBox.setText(savedWebAddr)
+
+        binding.webServerAddressBox.setOnKeyListener { view, i, keyEvent ->
+            when {
+                //Check if it is the Enter-Key,      Check if the Enter Key was pressed down
+                ((keyEvent.action == KeyEvent.ACTION_DOWN) && (i == KeyEvent.KEYCODE_ENTER)) -> {
+
+                    val imm: InputMethodManager? =
+                        activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+                    imm?.hideSoftInputFromWindow(view?.getWindowToken(), 0)
+
+                    val sharedPref = activity?.getSharedPreferences(
+                        getString(R.string.preference_file_key), Context.MODE_PRIVATE
+                    )
+                    if (sharedPref != null) {
+                        with(sharedPref.edit()) {
+                            putString(
+                                getString(R.string.saved_web_server_address_key),
+                                binding.webServerAddressBox.text.toString()
+                            )
+                            apply()
+                        }
+                    }
+                    binding.webServerAddressBox.clearFocus()
+                    return@setOnKeyListener true
+                }
+                else -> false
+            }
+
+        }
 
         binding.webServerAddressBox.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
@@ -143,7 +210,8 @@ class StartFragment : Fragment() {
             return;
         }
         if (this.hubConnection != null) {
-            this.hubConnection!!.send("sendEndPong")
+            if (this.hubConnection!!.connectionState == HubConnectionState.CONNECTED)
+                this.hubConnection!!.send("sendEndPong")
             this.hubConnection!!.stop()
             this.hubConnection!!.close()
             this.hubConnection = null
@@ -154,8 +222,8 @@ class StartFragment : Fragment() {
         binding.webRemote.text = getString(R.string.web_remote_connecting)
         val addrPref = App.sharedPreferences().getString(
             App.applicationContext().getString(R.string.saved_web_server_address_key),
-            "10.0.2.2:50051"
-        ) ?: "10.0.2.2:50051"
+            "http://sorter.ml"
+        ) ?: "http://sorter.ml" //  http://ip:port
         val hubConnection: HubConnection =
             HubConnectionBuilder.create("${addrPref}/hubs/control").build()
 //            HubConnectionBuilder.create("http://192.168.11.189:5002/hubs/control").build()
@@ -174,19 +242,35 @@ class StartFragment : Fragment() {
                     when (message) {
                         "analyzeFast" -> {
                             val navHostFragment = findNavController()
-                            navHostFragment.navigate(StartFragmentDirections.actionStartFragmentToAnalyzeFastFragment())
+                            activity?.runOnUiThread(Runnable {
+                                navHostFragment.navigate(StartFragmentDirections.actionStartFragmentToAnalyzeFastFragment())
+//                                sendState(hubConnection)
+                            })
+                            hubConnection.send("returnState", "analyzeFastFragment")
                         }
                         "analyze" -> {
                             val navHostFragment = findNavController()
-                            navHostFragment.navigate(StartFragmentDirections.actionStartFragmentToAnalyzeFragment())
+                            activity?.runOnUiThread(Runnable {
+                                navHostFragment.navigate(StartFragmentDirections.actionStartFragmentToAnalyzeFragment())
+//                                sendState(hubConnection)
+                            })
+                            hubConnection.send("returnState", "analyzeFragment")
                         }
                         "sort" -> {
                             val navHostFragment = findNavController()
-                            navHostFragment.navigate(StartFragmentDirections.actionStartFragmentToSortFragment())
+                            activity?.runOnUiThread(Runnable {
+                                navHostFragment.navigate(StartFragmentDirections.actionStartFragmentToSortFragment())
+//                                sendState(hubConnection)
+                            })
+                            hubConnection.send("returnState", "sortFragmentOff")
                         }
                         "back" -> {
                             val navHostFragment = findNavController()
-                            navHostFragment.navigateUp()
+                            activity?.runOnUiThread(Runnable {
+                                navHostFragment.navigateUp()
+//                                sendState(hubConnection)
+                            })
+                            hubConnection.send("returnState", "startFragment")
 //                            navHostFragment.navigate(StartFragmentDirections.actionStartFragmentToCaptureDialogFragment())
                         }
                         else -> {
@@ -218,6 +302,7 @@ class StartFragment : Fragment() {
                                                             getString(R.string.stop_text)
                                                         fragment.analyzeImages()
                                                         fragment.analysisStarted = true
+                                                        sendState(hubConnection)
                                                     })
 
 
@@ -227,7 +312,7 @@ class StartFragment : Fragment() {
                                                             getString(R.string.start_text)
                                                         fragment.stopImageAnalysis()
                                                         fragment.analysisStarted = false
-
+                                                        sendState(hubConnection)
                                                     })
                                                 }
                                             }
@@ -244,14 +329,119 @@ class StartFragment : Fragment() {
 //                            val navHostFragment = findNavController()
 //                            navHostFragment.navigate(StartFragmentDirections.actionStartFragmentToAnalyzeFastFragment())
                         }
-//                        "analyze" -> {
-//                            val navHostFragment = findNavController()
-//                            navHostFragment.navigate(StartFragmentDirections.actionStartFragmentToAnalyzeFragment())
-//                        }
-//                        "sort" -> {
-//                            val navHostFragment = findNavController()
-//                            navHostFragment.navigate(StartFragmentDirections.actionStartFragmentToSortFragment())
-//                        }
+                        "analyze" -> {
+                            val currentFragment = findNavController().currentDestination?.id
+                            if (currentFragment == R.id.analyzeFragment) {
+                                try {
+                                    val fm: FragmentManager? = activity?.supportFragmentManager
+                                    fm?.fragments?.forEach {
+                                        it.childFragmentManager.fragments.forEach { fragment ->
+                                            if (fragment is AnalyzeFragment) {
+                                                if (!fragment.analysisStarted) {
+                                                    activity?.runOnUiThread(Runnable {
+                                                        // Stuff that updates the UI
+                                                        fragment.binding.startStopSortingButton.text =
+                                                            getString(R.string.stop_text)
+                                                        fragment.analyzeImages()
+                                                        fragment.analysisStarted = true
+                                                        sendState(hubConnection)
+                                                    })
+
+
+                                                } else {
+                                                    activity?.runOnUiThread(Runnable {
+                                                        fragment.binding.startStopSortingButton.text =
+                                                            getString(R.string.start_text)
+                                                        fragment.stopImageAnalysis()
+                                                        fragment.analysisStarted = false
+                                                        sendState(hubConnection)
+                                                    })
+                                                }
+                                            }
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    val te = 5
+
+                                }
+                            }
+                        }
+                        "sortMachine" -> {
+                            val currentFragment = findNavController().currentDestination?.id
+                            if (currentFragment == R.id.sortFragment) {
+                                try {
+                                    val fm: FragmentManager? = activity?.supportFragmentManager
+                                    fm?.fragments?.forEach {
+                                        it.childFragmentManager.fragments.forEach { fragment ->
+                                            if (fragment is SortFragment) {
+                                                if (!fragment.isMachineStarted.get()) {
+                                                    activity?.runOnUiThread(Runnable {
+                                                        // Stuff that updates the UI
+                                                        fragment.isMachineStarted.set(true)
+                                                        fragment.binding.startStopMachineButton.text =
+                                                            getString(com.lsorter.R.string.stop_machine_text)
+                                                        fragment.startMachine()
+                                                        sendState(hubConnection)
+                                                    })
+
+
+                                                } else {
+                                                    activity?.runOnUiThread(Runnable {
+                                                        fragment.isMachineStarted.set(false)
+                                                        fragment.binding.startStopMachineButton.text =
+                                                            getString(com.lsorter.R.string.start_machine_text)
+                                                        fragment.stopMachine()
+                                                        sendState(hubConnection)
+                                                    })
+                                                }
+                                            }
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    val te = 5
+
+                                }
+                            }
+                        }
+                        "sort" -> {
+                            val currentFragment = findNavController().currentDestination?.id
+                            if (currentFragment == R.id.sortFragment) {
+                                try {
+                                    val fm: FragmentManager? = activity?.supportFragmentManager
+                                    fm?.fragments?.forEach {
+                                        it.childFragmentManager.fragments.forEach { fragment ->
+                                            if (fragment is SortFragment) {
+                                                if (!fragment.isSortingStarted.get()) {
+                                                    activity?.runOnUiThread(Runnable {
+                                                        // Stuff that updates the UI
+                                                        fragment.setVisibilityOfFocusSeeker(View.GONE)
+                                                        fragment.binding.startStopSortingButton.text =
+                                                            getString(com.lsorter.R.string.stop_sorting_text)
+                                                        fragment.startSorting()
+                                                        fragment.isSortingStarted.set(true)
+                                                        sendState(hubConnection)
+                                                    })
+
+
+                                                } else {
+                                                    activity?.runOnUiThread(Runnable {
+                                                        fragment.isSortingStarted.set(false)
+                                                        fragment.setVisibilityOfFocusSeeker(View.VISIBLE)
+                                                        fragment.binding.startStopSortingButton.text =
+                                                            getString(com.lsorter.R.string.start_sorting_text)
+                                                        fragment.stopSorting()
+                                                        sendState(hubConnection)
+                                                    })
+                                                }
+                                            }
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    val te = 5
+
+                                }
+                            }
+                        }
 //                        "captureDialog" -> {
 //                            val navHostFragment = findNavController()
 //                            navHostFragment.navigate(StartFragmentDirections.actionStartFragmentToCaptureDialogFragment())
@@ -318,6 +508,22 @@ class StartFragment : Fragment() {
                                 pref.getString(option, "500")
                             )
                         }
+                        "ANALYSIS_MINIMUM_DELAY" -> {
+                            hubConnection.send("returnConfig", option, pref.getString(option, "750"))
+                        }
+                        "RENDER_BELT_SPEED" -> {
+                            hubConnection.send("returnConfig", option, pref.getString(option, "1"))
+                        }
+                        "RENDER_OPACITY" -> {
+                            hubConnection.send("returnConfig", option, pref.getString(option, "75"))
+                        }
+                        "CAMERA_VIEW" -> {
+                            hubConnection.send(
+                                "returnConfig",
+                                option,
+                                pref.getBoolean(option, false).toString()
+                            )
+                        }
                         else -> {
                             println("New Message: $option")
                         }
@@ -333,25 +539,31 @@ class StartFragment : Fragment() {
             hubConnection.send("sendPong")
         }
 
+        hubConnection.on("getState") {
+            sendState(hubConnection)
+        }
+
         hubConnection.on("getConnectionConfigs") {
             val savedAddr = activity?.getSharedPreferences(
                 getString(R.string.preference_file_key), Context.MODE_PRIVATE
             )?.getString(
                 getString(R.string.saved_server_address_key),
-                "ip:port"
-            ) ?: "ip:port"
+                "server.sorter.ml:50051"
+            ) ?: "server.sorter.ml:50051" //  ip:port
 
             val savedWebAddr = activity?.getSharedPreferences(
                 getString(R.string.preference_file_key), Context.MODE_PRIVATE
             )?.getString(
                 getString(R.string.saved_web_server_address_key),
-                "ip:port"
-            ) ?: "ip:port"
+                "http://sorter.ml"
+            ) ?: "http://sorter.ml" //  http://ip:port
 
-            hubConnection.send("sendConnectionConfigs",savedAddr,savedWebAddr)
+            hubConnection.send("sendConnectionConfigs", savedAddr, savedWebAddr)
         }
 
-        hubConnection.on("setConnectionConfigs", {savedAddr: String, savedWebAddr: String -> run{
+        hubConnection.on(
+            "setConnectionConfigs", { savedAddr: String, savedWebAddr: String ->
+                run {
                     val sharedPref = activity?.getSharedPreferences(
                         getString(R.string.preference_file_key), Context.MODE_PRIVATE
                     )
@@ -377,7 +589,8 @@ class StartFragment : Fragment() {
                     })
                 }
             },
-            String::class.java, String::class.java)
+            String::class.java, String::class.java
+        )
 
         hubConnection.on(
             "getConfigs"
@@ -393,7 +606,11 @@ class StartFragment : Fragment() {
                 sensor_sensitivity = pref.getString("SENSOR_SENSITIVITY", "")!!,
                 sorter_conveyor_speed_value = pref.getInt("SORTER_CONVEYOR_SPEED_VALUE", 50),
                 sorter_mode_preference = pref.getString("SORTER_MODE_PREFERENCE", "0")!!,
-                run_conveyor_time_value = pref.getString("RUN_CONVEYOR_TIME_VALUE", "500")!!
+                run_conveyor_time_value = pref.getString("RUN_CONVEYOR_TIME_VALUE", "500")!!,
+                analysis_minimum_delay = pref.getString("ANALYSIS_MINIMUM_DELAY", "750")!!,
+                render_belt_speed = pref.getString("RENDER_BELT_SPEED", "1.0")!!,
+                render_belt_opacity = pref.getString("RENDER_OPACITY", "75")!!,
+                render_belt_camera_view = pref.getBoolean("CAMERA_VIEW", false)
             )
 //            try {
 //                var json = Json.encodeToString(configs)
@@ -448,22 +665,115 @@ class StartFragment : Fragment() {
         }
 
         hubConnection.on(
+            "getSession"
+        ) {
+            run {
+                val savedSession = activity?.getSharedPreferences(
+                    getString(R.string.preference_file_key), Context.MODE_PRIVATE
+                )?.getString(
+                    "user_saved_session_value",
+                    "Session_1"
+                ) ?: "Session_1"
+//                val savedSession = activity?.getSharedPreferences(
+//                    getString(R.string.preference_file_key), Context.MODE_PRIVATE
+//                )?.getString(
+//                    getString(R.string.saved_session_value_key),
+//                    "Session_1"
+//                ) ?: "Session_1"
+                val saveImgSwitchVal = activity?.getSharedPreferences(
+                    getString(R.string.preference_file_key), Context.MODE_PRIVATE
+                )?.getBoolean(getString(R.string.saved_image_switch_key), false) ?: false
+
+                hubConnection.send("sendSession", saveImgSwitchVal, savedSession)
+            }
+        }
+
+        hubConnection.on(
+            "setSession", { saveImg: Boolean, session: String ->
+                run {
+                    val pref = PreferenceManager.getDefaultSharedPreferences(requireContext());
+                    val sharedPref = activity?.getSharedPreferences(
+                        getString(R.string.preference_file_key), Context.MODE_PRIVATE
+                    )
+                    if (sharedPref != null) {
+                        with(sharedPref.edit()) {
+                            putString(
+                                getString(R.string.saved_session_value_key),
+                                session
+                            )
+                            apply()
+                        }
+                    }
+                    val editor = pref.edit();
+//                    editor.putString(getString(R.string.saved_session_value_key), session)
+//                    editor.putString("user_saved_session_value", "test");
+                    editor.putBoolean(getString(R.string.saved_image_switch_key), saveImg);
+                    editor.apply();
+                    val currentFragment = findNavController().currentDestination?.id
+                    if (currentFragment == R.id.analyzeFastFragment) {
+                        try {
+                            val fm: FragmentManager? = activity?.supportFragmentManager
+                            fm?.fragments?.forEach {
+                                it.childFragmentManager.fragments.forEach { fragment ->
+                                    if (fragment is AnalyzeFastFragment) {
+                                        if (!fragment.analysisStarted) {
+
+                                            activity?.runOnUiThread(Runnable {
+                                                // Stuff that updates the UI
+                                                fragment.binding.saveImgSwitch.isChecked = saveImg;
+                                                fragment.binding.sessionName.setText(session);
+//                                                fragment.stopCamera();
+//                                                fragment.prepareCamera();
+//                                                val te = 5
+                                            })
+
+                                        } else {
+
+                                            activity?.runOnUiThread(Runnable {
+                                                fragment.binding.saveImgSwitch.isChecked = saveImg;
+                                                fragment.binding.sessionName.setText(session);
+                                                fragment.stopCamera();
+                                                fragment.analyzeImages();
+                                                val te = 5
+                                            })
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            val te = 5
+
+                        }
+                    }
+                }
+            },
+            Boolean::class.java, String::class.java
+        )
+
+        hubConnection.on(
             "setConfigs",
             { config: Configs ->
                 run {
                     val pref = PreferenceManager.getDefaultSharedPreferences(requireContext())
                     val editor = pref.edit()
 
-                    editor.putString("CAPTURE_MODE_PREFERENCE" , config.capture_mode_preference)
-                    editor.putString( "CAPTURE_RESOLUTION_VALUE", config.capture_resolution_value)
+                    editor.putString("CAPTURE_MODE_PREFERENCE", config.capture_mode_preference)
+                    editor.putString("CAPTURE_RESOLUTION_VALUE", config.capture_resolution_value)
                     editor.putString("ANALYSIS_RESOLUTION_VALUE", config.analysis_resolution_value)
-                    editor.putString( "EXPOSURE_COMPENSATION_VALUE", config.exposure_compensation_value)
+                    editor.putString(
+                        "EXPOSURE_COMPENSATION_VALUE",
+                        config.exposure_compensation_value
+                    )
                     editor.putBoolean("MANUAL_SETTINGS", config.manual_settings)
                     editor.putString("SENSOR_EXPOSURE_TIME", config.sensor_exposure_time)
                     editor.putString("SENSOR_SENSITIVITY", config.sensor_sensitivity)
                     editor.putInt("SORTER_CONVEYOR_SPEED_VALUE", config.sorter_conveyor_speed_value)
                     editor.putString("SORTER_MODE_PREFERENCE", config.sorter_mode_preference)
                     editor.putString("RUN_CONVEYOR_TIME_VALUE", config.run_conveyor_time_value)
+                    editor.putString("ANALYSIS_MINIMUM_DELAY", config.analysis_minimum_delay)
+                    editor.putString("RENDER_BELT_SPEED", config.render_belt_speed)
+                    editor.putString("RENDER_OPACITY", config.render_belt_opacity)
+                    editor.putBoolean("CAMERA_VIEW", config.render_belt_camera_view)
                     editor.apply()
 
 
@@ -483,8 +793,7 @@ class StartFragment : Fragment() {
                                                 val te = 5
                                             })
 
-                                        }
-                                        else {
+                                        } else {
 
                                             activity?.runOnUiThread(Runnable {
                                                 fragment.stopCamera()
@@ -556,6 +865,22 @@ class StartFragment : Fragment() {
                             editor.putString(option, value)
                             editor.apply()
                         }
+                        "ANALYSIS_MINIMUM_DELAY" -> {
+                            editor.putString(option, value)
+                            editor.apply()
+                        }
+                        "RENDER_OPACITY" -> {
+                            editor.putString(option, value)
+                            editor.apply()
+                        }
+                        "RENDER_BELT_SPEED" -> {
+                            editor.putString(option, value)
+                            editor.apply()
+                        }
+                        "CAMERA_VIEW" -> {
+                            editor.putBoolean(option, value.toBoolean())
+                            editor.apply()
+                        }
                         else -> {
                             println("New Message: $option")
                         }
@@ -612,7 +937,102 @@ class StartFragment : Fragment() {
 //        }
 
     }
-
+    private fun sendState(hubConnection:HubConnection){
+        val currentFragment = findNavController().currentDestination?.id
+        if (currentFragment == R.id.analyzeFastFragment) {
+            try {
+                val fm: FragmentManager? = activity?.supportFragmentManager
+                fm?.fragments?.forEach {
+                    it.childFragmentManager.fragments.forEach { fragment ->
+                        if (fragment is AnalyzeFastFragment) {
+                            if (!fragment.analysisStarted) {
+                                hubConnection.send("returnState", "analyzeFastFragment")
+                            } else {
+                                hubConnection.send(
+                                    "returnState",
+                                    "analyzeFastFragmentAnalysisStarted"
+                                )
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+            }
+        }
+        if (currentFragment == R.id.analyzeFragment) {
+            try {
+                val fm: FragmentManager? = activity?.supportFragmentManager
+                fm?.fragments?.forEach {
+                    it.childFragmentManager.fragments.forEach { fragment ->
+                        if (fragment is AnalyzeFragment) {
+                            if (!fragment.analysisStarted) {
+                                hubConnection.send("returnState", "analyzeFragment")
+                            } else {
+                                hubConnection.send(
+                                    "returnState",
+                                    "analyzeFragmentAnalysisStarted"
+                                )
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+            }
+        }
+        if (currentFragment == R.id.sortFragment) {
+            try {
+                val fm: FragmentManager? = activity?.supportFragmentManager
+                fm?.fragments?.forEach {
+                    it.childFragmentManager.fragments.forEach { fragment ->
+                        if (fragment is SortFragment) {
+                            if (!fragment.isSortingStarted.get()) {
+                                if(!fragment.initialized.get()){
+                                    hubConnection.send("returnState", "sortFragmentOff")
+                                }
+                                else{
+                                    hubConnection.send("returnState", "sortFragmentOn")
+                                }
+                            } else {
+                                if(!fragment.initialized.get()){
+                                    hubConnection.send("returnState", "sortFragmentSortingStartedOff")
+                                }
+                                else{
+                                    hubConnection.send("returnState", "sortFragmentSortingStartedOn")
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+            }
+        }
+        if (currentFragment == R.id.captureFragment) {
+            try {
+                val fm: FragmentManager? = activity?.supportFragmentManager
+                fm?.fragments?.forEach {
+                    it.childFragmentManager.fragments.forEach { fragment ->
+                        if (fragment is CaptureFragment) {
+                            hubConnection.send("returnState", "captureFragment")
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+            }
+        }
+        if (currentFragment == R.id.startFragment) {
+            try {
+                val fm: FragmentManager? = activity?.supportFragmentManager
+                fm?.fragments?.forEach {
+                    it.childFragmentManager.fragments.forEach { fragment ->
+                        if (fragment is StartFragment) {
+                            hubConnection.send("returnState", "startFragment")
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+            }
+        }
+    }
 
     private fun setupNavigation(binding: FragmentStartBinding) {
         binding.createDatasetButton.setOnClickListener(

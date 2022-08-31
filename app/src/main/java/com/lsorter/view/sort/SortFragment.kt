@@ -34,13 +34,13 @@ class SortFragment : Fragment() {
 
     private var cameraExecutor: ExecutorService = Executors.newFixedThreadPool(4)
     private lateinit var viewModel: SortViewModel
-    private lateinit var binding: FragmentSortBinding
+    lateinit var binding: FragmentSortBinding
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var sorterService: LegoBrickSorterService
 
-    private var isSortingStarted: AtomicBoolean = AtomicBoolean(false)
-    private var isMachineStarted: AtomicBoolean = AtomicBoolean(false)
-    private var initialized: AtomicBoolean = AtomicBoolean(false)
+    public var isSortingStarted: AtomicBoolean = AtomicBoolean(false)
+    var isMachineStarted: AtomicBoolean = AtomicBoolean(false)
+    public var initialized: AtomicBoolean = AtomicBoolean(false)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -123,24 +123,24 @@ class SortFragment : Fragment() {
         initialize()
     }
 
-    private fun startMachine() {
+    fun startMachine() {
         sorterService.startMachine()
     }
 
-    private fun stopMachine() {
+    fun stopMachine() {
         sorterService.stopMachine()
     }
 
-    private fun setVisibilityOfFocusSeeker(visibility: Int) {
+    fun setVisibilityOfFocusSeeker(visibility: Int) {
         binding.focusBar.visibility = visibility
         binding.focusBarLabel.visibility = visibility
     }
 
-    private fun startSorting() {
+    fun startSorting() {
         initialize(startProcessing = true)
     }
 
-    private fun stopSorting() {
+    fun stopSorting() {
         sorterService.stopImageCapturing()
         binding.graphicOverlay.let {
             it.clear()

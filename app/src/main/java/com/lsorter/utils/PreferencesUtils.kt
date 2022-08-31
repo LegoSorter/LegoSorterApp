@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.hardware.camera2.CaptureRequest
+import android.util.Rational
 import android.util.Size
 import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.*
@@ -65,15 +66,20 @@ class PreferencesUtils {
         ): ImageAnalysis.Builder {
             context?.apply {
                 val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+                var max = false
                 val resolution = preferences.getString("ANALYSIS_RESOLUTION_VALUE", "0")!!.let {
                     when (it) {
                         "0" -> RESOLUTION_QVGA
                         "1" -> RESOLUTION_SD
                         "2" -> RESOLUTION_HD
-                        else -> RESOLUTION_FHD
+                        "3" -> RESOLUTION_FHD
+                        "4" -> RESOLUTION_2K
+                        "5" -> RESOLUTION_UHD
+                        else -> {max = true; RESOLUTION_UHD}
                     }
                 }
                 builder.setTargetResolution(resolution)
+
                 extendByPreferences(builder, preferences)
             }
             return builder

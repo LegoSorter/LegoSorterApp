@@ -38,7 +38,7 @@ class OnPremiseLegoBrickAnalyzerFast : LegoBrickAnalyzerFast {
         }
     }
 
-    override fun detectAndClassify(image: ImageProxy): List<RecognizedLegoBrick> {
+    override fun detectAndClassify(image: ImageProxy,session:String): List<RecognizedLegoBrick> {
         TODO("Not yet implemented")
     }
 

@@ -13,11 +13,11 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.lsorter"
+        applicationId "com.lsorterfast"
         minSdkVersion 21
         targetSdkVersion 33
         versionCode 1
-        versionName "1.1.0-alpha"
+        versionName "1.1.1-alpha"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -82,7 +82,8 @@ dependencies {
     // CameraX View class
     implementation "androidx.camera:camera-view:$camerax_version"
 
-    implementation 'com.google.guava:guava:29.0-jre'
+    implementation 'com.google.guava:guava:30.0-android'
+//    implementation 'com.google.guava:guava:29.0-jre'
 
     // Protobuf
     implementation 'com.google.protobuf:protobuf-lite:3.0.1'

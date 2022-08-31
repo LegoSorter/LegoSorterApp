@@ -27,10 +27,11 @@
                 android:layout_height="wrap_content"
                 android:imeOptions="actionDone"
                 android:inputType="text"
-                android:hint="Lego Sorter address"
-                android:text="ip:port"
+                android:hint="Lego Sorter address (ip:port)"
+                android:text="server.sorter.ml:50051"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent" /> <!--ip:port-->
+
         </com.google.android.material.textfield.TextInputLayout>
 <!--        <EditText-->
 <!--            android:id="@+id/server_address_box"-->
@@ -108,9 +109,9 @@
                 android:layout_height="wrap_content"
                 android:imeOptions="actionDone"
                 android:inputType="text"
-                android:text="http://ip:port"
-                android:hint="Web UI address" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:text="http://sorter.ml"
+                android:hint="Web UI address (http://ip:port)" />
+        </com.google.android.material.textfield.TextInputLayout> <!--http://ip:port-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

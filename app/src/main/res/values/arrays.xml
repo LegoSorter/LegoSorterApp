@@ -26,6 +26,7 @@
         <item>3</item>
         <item>4</item>
         <item>5</item>
+        <item>6</item>
     </string-array>
 
     <string-array name="analysis_resolution_items">
@@ -33,6 +34,8 @@
         <item>480 x 640 (SD)</item>
         <item>720 x 1280 (HD)</item>
         <item>1080 x 1920 (FHD)</item>
+        <item>1152 x 2048 (2K)</item>
+        <item>2160 x 3840 (UHD)</item>
     </string-array>
 
     <string-array name="analysis_resolution_values">
@@ -40,6 +43,8 @@
         <item>1</item>
         <item>2</item>
         <item>3</item>
+        <item>4</item>
+        <item>5</item>
     </string-array>
 
     <!-- Sorter modes -->

@@ -20,12 +20,18 @@
             android:title="@string/capture_resolution_title"/>
 
         <ListPreference
-            app:defaultValue="2"
+            app:defaultValue="3"
             android:entries="@array/analysis_resolution_items"
             android:entryValues="@array/analysis_resolution_values"
             android:key="ANALYSIS_RESOLUTION_VALUE"
             app:useSimpleSummaryProvider="true"
             android:title="@string/analysis_resolution_title"/>
+
+        <EditTextPreference
+            app:defaultValue="750"
+            app:key="ANALYSIS_MINIMUM_DELAY"
+            app:summary="@string/analysis_minimum_delay_summary"
+            app:title="@string/analysis_minimum_delay_title" />
 
         <EditTextPreference
             app:key="EXPOSURE_COMPENSATION_VALUE"
@@ -48,6 +54,24 @@
             app:key="SENSOR_SENSITIVITY"
             app:summary="@string/sensor_sensitivity_summary"
             app:title="@string/sensor_sensitivity_title" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Render options">
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:key="CAMERA_VIEW"
+            app:summary="@string/camera_view_summary"
+            app:title="@string/camera_view_title" />
+        <EditTextPreference
+            app:defaultValue="0.0"
+            app:key="RENDER_BELT_SPEED"
+            app:summary="@string/render_belt_speed_summary"
+            app:title="@string/render_belt_speed_title" />
+        <EditTextPreference
+            app:defaultValue="75"
+            app:key="RENDER_OPACITY"
+            app:summary="@string/render_opacity_summary"
+            app:title="@string/render_opacity_title" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="Sorting configuration">

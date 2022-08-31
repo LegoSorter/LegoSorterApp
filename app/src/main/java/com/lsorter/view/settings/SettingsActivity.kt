@@ -26,6 +26,7 @@ class SettingsActivity : AppCompatActivity() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
             (preferenceScreen[0] as PreferenceCategory).forEach(this::updateSummary)
+            (preferenceScreen[1] as PreferenceCategory).forEach(this::updateSummary)
             preferenceManager.sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
         }
 
@@ -57,6 +58,36 @@ class SettingsActivity : AppCompatActivity() {
                                 cameraCompensationRange?.lower ?: 0,
                                 cameraCompensationRange?.upper ?: 0,
                                 it.getString(key, "Not set")
+                            )
+                        }
+                    }
+                }
+                "ANALYSIS_MINIMUM_DELAY" -> {
+                    preference.apply {
+                        this.summary = preferenceManager.sharedPreferences?.let {
+                            String.format(
+                                applicationContext.getString(R.string.analysis_minimum_delay_summary),
+                                it.getString(key, "750")
+                            )
+                        }
+                    }
+                }
+                "RENDER_BELT_SPEED" -> {
+                    preference.apply {
+                        this.summary = preferenceManager.sharedPreferences?.let {
+                            String.format(
+                                applicationContext.getString(R.string.render_belt_speed_summary),
+                                it.getString(key, "1")
+                            )
+                        }
+                    }
+                }
+                "RENDER_OPACITY" -> {
+                    preference.apply {
+                        this.summary = preferenceManager.sharedPreferences?.let {
+                            String.format(
+                                applicationContext.getString(R.string.render_opacity_summary),
+                                it.getString(key, "75")
                             )
                         }
                     }

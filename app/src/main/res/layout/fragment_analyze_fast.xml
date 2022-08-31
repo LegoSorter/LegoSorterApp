@@ -39,11 +39,12 @@
 
         <WebView
             android:id="@+id/webView_fast"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toTopOf="@+id/session_name_TextInputLayout"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintDimensionRatio="9:16"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 <!--        app:layout_constraintDimensionRatio="9/16"-->
 
@@ -51,7 +52,10 @@
             android:id="@+id/session_name_TextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+
             app:layout_constraintBottom_toTopOf="@+id/linearLayout_fast"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/viewFinder_fast">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -59,6 +63,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/save_img_hint"
+
                 android:imeOptions="actionDone"
                 android:inputType="text"
                 android:text="@string/save_img_example" />

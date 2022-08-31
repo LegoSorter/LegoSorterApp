@@ -1,17 +1,20 @@
 <resources>
-    <string name="app_name">Lego Sorter App</string>
+    <string name="app_name">Lego Sorter Fast App</string>
     <string name="capture_automatic_mode_switch">Enable auto capture mode</string>
     <string name="capturing_interval_label">Set the capturing interval</string>
     <string name="provide_lego_label_hint">Provide a lego label</string>
     <string name="preference_file_key">user_shared_preferences</string>
     <string name="saved_server_address_key">user_server_address</string>
     <string name="saved_web_server_address_key">user_web_server_address</string>
+    <string name="saved_user_web_prev_key">user_web_prev</string>
+    <string name="saved_image_switch_key">user_saved_image_switch</string>
+    <string name="saved_session_value_key">user_saved_session_value</string>
     <string name="create_dataset">Create dataset</string>
     <string name="sort">Sort</string>
     <string name="analyze">Analyze</string>
     <string name="analyze_fast">Analyze Fast</string>
     <string name="save_img">Save Img</string>
-    <string name="web_prev">Web prev</string>
+    <string name="web_prev">Render prev</string>
     <string name="save_img_hint">Session name:</string>
     <string name="save_img_example">Session_1</string>
     <string name="start_text">Start</string>
@@ -33,6 +36,10 @@
     <string name="sensor_sensitivity_title">Sensor sensitivity</string>
     <string name="camera_settings_category_title">Camera settings</string>
     <string name="exposure_compensation_summary">Needs to be between %d and %d\nCurrent value: %s</string>
+    <string name="analysis_minimum_delay_title">Minimum time delay</string>
+    <string name="analysis_minimum_delay_summary">Minimum time between image processing in ms (0 - ignore))\nCurrent value: %s</string>
+    <string name="render_belt_speed_title">Render belt speed</string>
+    <string name="render_belt_speed_summary">Render belt speed multiplier\nCurrent value: %s</string>
     <string name="manual_settings_summary" />
     <string name="sensor_exposure_time_summary">Needs to be between %s and %s (ms)\nCurrent value: %s</string>
     <string name="sensor_sensitivity_summary">Needs to be between %d and %d\nCurrent value: %s</string>
@@ -45,4 +52,8 @@
     <string name="web_remote_start">Start web remote</string>
     <string name="web_remote_connecting">Connecting to web remote</string>
     <string name="web_remote_stop">Stop web remote</string>
+    <string name="render_opacity_title">Render opacity</string>
+    <string name="render_opacity_summary">Needs to be between 0 and 100\nCurrent value: %s</string>
+    <string name="camera_view_summary">Render like camera, not belt perspective</string>
+    <string name="camera_view_title">Render camera view mode</string>
 </resources>

@@ -8,7 +8,7 @@ import com.lsorter.analyze.analyzers.LegoBrickAnalyzersFastFactory
 import com.lsorter.analyze.layer.GraphicOverlay
 import com.lsorter.analyze.layer.LegoGraphic
 
-class LegoImageAnalyzerFast(private val graphicOverlay: GraphicOverlay) : ImageAnalysis.Analyzer {
+class LegoImageAnalyzerFast(private val graphicOverlay: GraphicOverlay,private val session:String) : ImageAnalysis.Analyzer {
     private val analyzer: LegoBrickAnalyzerFast = LegoBrickAnalyzersFastFactory.getLegoBrickAnalyzer()
 
     private var initialized: Boolean = false
@@ -40,7 +40,7 @@ class LegoImageAnalyzerFast(private val graphicOverlay: GraphicOverlay) : ImageA
         if (analysisMode == AnalysisMode.DETECT_ONLY) {
             analyzer.detectBricks(image)
         } else {
-            analyzer.detectAndClassify(image)
+            analyzer.detectAndClassify(image,session)
         }.apply {
             image.close()
             drawRecognizedBricks(this)

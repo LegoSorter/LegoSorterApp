@@ -22,9 +22,9 @@ import java.util.concurrent.Executors
 
 class AnalyzeFragment : Fragment() {
     private val analysisExecutor: Executor = Executors.newFixedThreadPool(4)
-    private lateinit var binding: FragmentAnalyzeBinding
+    lateinit var binding: FragmentAnalyzeBinding
     private lateinit var viewModel: AnalyzeViewModel
-    private var analysisStarted = false
+    var analysisStarted = false
     private var cameraProvider: ProcessCameraProvider? = null
     private var legoImageAnalyzer: LegoImageAnalyzer? = null
 
@@ -78,7 +78,7 @@ class AnalyzeFragment : Fragment() {
         }, ContextCompat.getMainExecutor(this.requireContext()))
     }
 
-    private fun analyzeImages() {
+    fun analyzeImages() {
         this.legoImageAnalyzer =
             LegoImageAnalyzer(binding.graphicOverlay)
         val imageAnalyzer = legoImageAnalyzer!!
@@ -107,7 +107,7 @@ class AnalyzeFragment : Fragment() {
         preview.setSurfaceProvider(binding.viewFinder.surfaceProvider)
     }
 
-    private fun stopImageAnalysis() {
+    fun stopImageAnalysis() {
         stopCamera()
         prepareCamera()
     }
