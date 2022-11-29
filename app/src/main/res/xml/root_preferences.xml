@@ -28,7 +28,7 @@
             android:title="@string/analysis_resolution_title"/>
 
         <EditTextPreference
-            app:defaultValue="750"
+            app:defaultValue="350"
             app:key="ANALYSIS_MINIMUM_DELAY"
             app:summary="@string/analysis_minimum_delay_summary"
             app:title="@string/analysis_minimum_delay_title" />

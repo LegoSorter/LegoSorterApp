@@ -77,7 +77,7 @@ class RemoteLegoBrickAnalyzerFast(connectionManager: ConnectionManager) : LegoBr
             var savedSessionLong:Long?=null
             val elapsed2 = measureTimeMillis {
                 var prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext());
-                var savedSession = prefs.getString("ANALYSIS_MINIMUM_DELAY", "750") ?: "750"
+                var savedSession = prefs.getString("ANALYSIS_MINIMUM_DELAY", "350") ?: "350"
                 savedSessionLong = savedSession.toLongOrNull()
             }
 //            println("${System.nanoTime()};$cnt;Detection took;$elapsed2");

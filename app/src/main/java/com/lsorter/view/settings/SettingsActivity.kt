@@ -67,7 +67,7 @@ class SettingsActivity : AppCompatActivity() {
                         this.summary = preferenceManager.sharedPreferences?.let {
                             String.format(
                                 applicationContext.getString(R.string.analysis_minimum_delay_summary),
-                                it.getString(key, "750")
+                                it.getString(key, "350")
                             )
                         }
                     }

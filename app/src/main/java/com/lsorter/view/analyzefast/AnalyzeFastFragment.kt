@@ -191,8 +191,8 @@ class AnalyzeFastFragment : Fragment() {
             getString(R.string.preference_file_key), Context.MODE_PRIVATE
         )?.getString(
             getString(R.string.saved_session_value_key),
-            "Session_11"
-        ) ?: "Session_11"
+            "Session_1"
+        ) ?: "Session_1"
         binding.sessionName.setText(savedSession)
 
         binding.sessionName.doOnTextChanged { text, start, before, count ->

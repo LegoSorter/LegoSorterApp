@@ -509,7 +509,7 @@ class StartFragment : Fragment() {
                             )
                         }
                         "ANALYSIS_MINIMUM_DELAY" -> {
-                            hubConnection.send("returnConfig", option, pref.getString(option, "750"))
+                            hubConnection.send("returnConfig", option, pref.getString(option, "350"))
                         }
                         "RENDER_BELT_SPEED" -> {
                             hubConnection.send("returnConfig", option, pref.getString(option, "1"))
@@ -607,7 +607,7 @@ class StartFragment : Fragment() {
                 sorter_conveyor_speed_value = pref.getInt("SORTER_CONVEYOR_SPEED_VALUE", 50),
                 sorter_mode_preference = pref.getString("SORTER_MODE_PREFERENCE", "0")!!,
                 run_conveyor_time_value = pref.getString("RUN_CONVEYOR_TIME_VALUE", "500")!!,
-                analysis_minimum_delay = pref.getString("ANALYSIS_MINIMUM_DELAY", "750")!!,
+                analysis_minimum_delay = pref.getString("ANALYSIS_MINIMUM_DELAY", "350")!!,
                 render_belt_speed = pref.getString("RENDER_BELT_SPEED", "1.0")!!,
                 render_belt_opacity = pref.getString("RENDER_OPACITY", "75")!!,
                 render_belt_camera_view = pref.getBoolean("CAMERA_VIEW", false)
