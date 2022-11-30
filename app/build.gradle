@@ -17,7 +17,9 @@ android {
         minSdkVersion 21
         targetSdkVersion 33
         versionCode 1
-        versionName "1.1.1-alpha"
+        versionName "1.1.2-alpha"
+        // change apk name: https://stackoverflow.com/a/44969974
+        archivesBaseName = "$applicationId-v$versionCode($versionName)"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -26,6 +28,12 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            // reduce apk size, build only for arm
+            // https://stackoverflow.com/a/47558314
+            ndk {
+                abiFilters 'arm64-v8a', 'armeabi-v7a'
+            }
         }
     }
 
