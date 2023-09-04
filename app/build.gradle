@@ -14,11 +14,11 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.lsorter"
+        applicationId "com.lsorter2"
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
-        versionName "1.1.0-alpha"
+        versionName "1.1.1-alpha"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

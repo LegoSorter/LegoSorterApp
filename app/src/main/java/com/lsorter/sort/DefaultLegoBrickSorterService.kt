@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.system.measureTimeMillis
 
 class DefaultLegoBrickSorterService : LegoBrickSorterService {
     private val captureExecutor: ExecutorService = Executors.newFixedThreadPool(2)
@@ -53,6 +54,20 @@ class DefaultLegoBrickSorterService : LegoBrickSorterService {
         return mapResponse(legoSorterService.processNextImage(imageRequest))
     }
 
+    @SuppressLint("RestrictedApi", "CheckResult")
+    override fun queueImage(image: ImageProxy) {
+        val imageRequest = CommonMessagesProto.ImageRequest.newBuilder()
+                .setImage(
+                        ByteString.copyFrom(
+                                ImageUtil.imageToJpegByteArray(image)
+                        )
+                ).setRotation(image.imageInfo.rotationDegrees)
+                .build()
+        image.close()
+
+        legoSorterService.queueImage(imageRequest)
+    }
+
     @SuppressLint("CheckResult")
     override fun updateConfig(configuration: LegoBrickSorterService.SorterConfiguration) {
         val configRequest = LegoSorterProto.SorterConfiguration.newBuilder()
@@ -66,6 +81,7 @@ class DefaultLegoBrickSorterService : LegoBrickSorterService {
         TODO("Not yet implemented")
     }
 
+    @SuppressLint("CheckResult")
     override fun scheduleImageCapturingAndStartMachine(
         imageCapture: ImageCapture,
         runTime: Int,
@@ -89,6 +105,36 @@ class DefaultLegoBrickSorterService : LegoBrickSorterService {
                         }
                     }
                     Thread.sleep(10)
+                }
+            }
+        }
+    }
+
+    override fun scheduleImageCapturingContinuous(
+            imageCapture: ImageCapture,
+            fps: Int,
+            callback: (ImageProxy) -> Unit
+    ) {
+        terminated.set(false)
+        canProcessNext.set(true)
+        captureExecutor.submit {
+            while (!terminated.get()) {
+                synchronized(canProcessNext) {
+                    val captureTime = measureTimeMillis {
+                        if (canProcessNext.get()) {
+                            canProcessNext.set(false)
+                            captureImage(imageCapture) { image ->
+                                callback(image)
+                                if (!terminated.get()) {
+                                    canProcessNext.set(true)
+                                }
+                            }
+                        }
+                    }
+                    val sleepTime = 1000 / fps.toLong() - captureTime
+                    if(sleepTime > 0) {
+                        Thread.sleep(sleepTime)
+                    }
                 }
             }
         }

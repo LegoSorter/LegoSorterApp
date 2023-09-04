@@ -154,6 +154,7 @@ class SortFragment : Fragment() {
         val conveyorSpeed = pref.getInt(CONVEYOR_SPEED_VALUE_PREFERENCE_KEY, 50)
         val runConveyorTime = pref.getString(RUN_CONVEYOR_TIME_PREFERENCE_KEY, "500")!!.toInt()
         val sortingMode = pref.getString(SORTING_MODE_PREFERENCE_KEY, "0")!!.toInt()
+        val fpsValue = pref.getInt(CONTINUOUS_MOVE_FPS_VALUE_PREFERENCE, 30)
 
         sorterService.updateConfig(LegoBrickSorterService.SorterConfiguration(conveyorSpeed))
 
@@ -167,18 +168,31 @@ class SortFragment : Fragment() {
                 .build()
 
             if (startProcessing) {
-                if (sortingMode == STOP_CAPTURE_RUN_PREFERENCE) {
-                    val imageCapture = getImageCapture()
-                    val camera =
-                        cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview)
-                    sorterService.scheduleImageCapturingAndStartMachine(
-                        imageCapture,
-                        runConveyorTime
-                    ) { image -> processImageAndDrawBricks(image) }
-                    camera
-                } else {
-                    val imageAnalysis = getImageAnalysis()
-                    cameraProvider.bindToLifecycle(this, cameraSelector, imageAnalysis, preview)
+                when (sortingMode) {
+                    STOP_CAPTURE_RUN_PREFERENCE -> {
+                        val imageCapture = getImageCapture()
+                        val camera =
+                                cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview)
+                        sorterService.scheduleImageCapturingAndStartMachine(
+                                imageCapture,
+                                runConveyorTime
+                        ) { image -> processImageAndDrawBricks(image) }
+                        camera
+                    }
+                    CONTINUOUS_MOVE_PREFERENCE -> {
+                        val imageCapture = getImageCapture()
+                        val camera =
+                                cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview)
+                        sorterService.scheduleImageCapturingContinuous(
+                                imageCapture,
+                                fpsValue
+                        ) { image -> sorterService.queueImage(image) }
+                        camera
+                    }
+                    else -> {
+                        val imageAnalysis = getImageAnalysis()
+                        cameraProvider.bindToLifecycle(this, cameraSelector, imageAnalysis, preview)
+                    }
                 }
             } else {
                 cameraProvider.bindToLifecycle(this, cameraSelector, preview)
@@ -281,5 +295,6 @@ class SortFragment : Fragment() {
         const val CONTINUOUS_MOVE_PREFERENCE: Int = 1
         const val RUN_CONVEYOR_TIME_PREFERENCE_KEY: String = "RUN_CONVEYOR_TIME_VALUE"
         const val CONVEYOR_SPEED_VALUE_PREFERENCE_KEY: String = "SORTER_CONVEYOR_SPEED_VALUE"
+        const val CONTINUOUS_MOVE_FPS_VALUE_PREFERENCE: String = "CONTINUOUS_MOVE_FPS_VALUE"
     }
 }
